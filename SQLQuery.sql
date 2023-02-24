@@ -29,8 +29,10 @@ SELECT month, new_users,
 FROM a
 
 --Homework Results
---Given the homework results of a group of students, calculate the average grade and the completion rate of each student. A homework is considered not completed if no grade has been assigned.
---Output first name of a student, their average grade, and completion rate in percentages. Note that it's possible for several students to have the same first name but their results should still be shown separately.
+--Given the homework results of a group of students, calculate the average grade and the completion rate of each student. 
+-- A homework is considered not completed if no grade has been assigned.
+--Output first name of a student, their average grade, and completion rate in percentages. 
+-- Note that it's possible for several students to have the same first name but their results should still be shown separately.
 WITH a AS (SELECT * FROM allstate_homework WHERE grade IS NOT NULL),
 b AS (SELECT student_id, COUNT(1) AS total_completation FROM a GROUP BY student_id),
 c AS (SELECT student_id, COUNT(1) AS total_homeworks FROM allstate_homework GROUP BY student_id),
@@ -58,7 +60,8 @@ WITH a AS(SELECT a.rider_id, a.city_id, a.timestamp, b.client_rating, b.driver_r
 b AS (SELECT * FROM signup_events WHERE day(timestamp) <= 7),
 c AS (SELECT city_id, COUNT(DISTINCT(rider_id)) AS total_signups_first_7_days FROM b GROUP BY city_id),
 d AS (SELECT city_id, COUNT(DISTINCT(rider_id)) AS total_completed_in_168_hour FROM a GROUP BY city_id)
-SELECT d.city_id, total_completed_in_168_hour, total_signups_first_7_days, CONVERT(DECIMAL(5,2),CAST(total_completed_in_168_hour AS DECIMAL(4,2))/total_signups_first_7_days*100) AS percentage
+SELECT d.city_id, total_completed_in_168_hour, total_signups_first_7_days, 
+	CONVERT(DECIMAL(5,2),CAST(total_completed_in_168_hour AS DECIMAL(4,2))/total_signups_first_7_days*100) AS percentage
 FROM d
 JOIN c
 ON d.city_id=c.city_id
@@ -80,8 +83,10 @@ ON b.id !=c.id
 --You have tasked with creating a table that compares an employee's salary to that of their manager and to the average salary of their department.
 --It is expected that the department manager's salary and the average salary of employee's from that department are in their own separate column.
 --Order the employee's salary from highest to lowest based on their department.
---Your output should contain the department, employee id, salary of that employee, salary of that employee's manager and the average salary from employee's within that department rounded to the nearest whole number.
---Note: Oracle have requested that you not include the department manager's salary in the average salary for that department in order to avoid skewing the results. Managers of each department do not report to anyone higher up; they are their own manager.
+--Your output should contain the department, employee id, salary of that employee, salary of that employee's manager and the average salary 
+-- from employee's within that department rounded to the nearest whole number.
+--Note: Oracle have requested that you not include the department manager's salary in the average salary for that department in order to avoid skewing the results. 
+-- Managers of each department do not report to anyone higher up; they are their own manager.
 SELECT a.department, a.id, a.salary, b.salary AS dept_manager_salary, c.avg_salary AS avg_dept_salary
 FROM employee_o a
 JOIN (SELECT id, first_name, department, salary FROM employee_o WHERE employee_title='Manager') b
@@ -91,7 +96,8 @@ ON a.department=c.department
 WHERE employee_title!='Manager'
 
 --Caller History
---Given a phone log table that has information about callers' call history, find out the callers whose first and last calls were to the same person on a given day. Output the caller ID, recipient ID, and the date called.
+--Given a phone log table that has information about callers' call history, find out the callers whose first and last calls were to the same person on a given day. 
+--Output the caller ID, recipient ID, and the date called.
 WITH a AS (SELECT CONVERT(date,date_called) AS date, caller_id, 
 				FIRST_VALUE(recipient_id) OVER(PARTITION BY CONVERT(date,date_called) ORDER BY date_called) AS first_recipient_id, 
 				FIRST_VALUE(recipient_id) OVER(PARTITION BY CONVERT(date,date_called) ORDER BY date_called DESC) AS last_recipient_id
@@ -104,9 +110,20 @@ WHERE first_recipient_id=last_recipient_id
 --The CMO is interested in understanding how the sales of different product families are affected by promotional campaigns. 
 --To do so, for each product family, show the total number of units sold, as well as the percentage of units sold that had a valid promotion among total units sold.
 --If there are NULLS in the result, replace them with zeroes. Promotion is valid if it's not empty and it's contained inside promotions table.
-WITH a AS (SELECT product_family, SUM(units_sold) AS total_units_sold FROM facebook_sales a JOIN facebook_products b ON a.product_id=b.product_id GROUP BY product_family),
-b AS (SELECT a.product_id, b.product_family, c.promotion_id, a.units_sold FROM facebook_sales a JOIN facebook_products b ON a.product_id=b.product_id JOIN facebook_sales_promotions c ON a.promotion_id=c.promotion_id),
-c AS (SELECT product_family, SUM(units_sold) AS total_units_sold_in_promotion FROM b GROUP BY product_family)
+WITH a AS 
+(SELECT product_family, SUM(units_sold) AS total_units_sold 
+ FROM facebook_sales a 
+ JOIN facebook_products b ON a.product_id=b.product_id 
+ GROUP BY product_family),
+b AS 
+(SELECT a.product_id, b.product_family, c.promotion_id, a.units_sold 
+ FROM facebook_sales a 
+ JOIN facebook_products b ON a.product_id=b.product_id 
+ JOIN facebook_sales_promotions c ON a.promotion_id=c.promotion_id),
+c AS 
+(SELECT product_family, SUM(units_sold) AS total_units_sold_in_promotion 
+ FROM b 
+ GROUP BY product_family)
 SELECT a.product_family, c.total_units_sold_in_promotion, a.total_units_sold
 FROM a
 JOIN c
@@ -206,7 +223,8 @@ WHERE delivery_rating=0
 GROUP BY dasher_id
 
 --Extremely Late Delivery
---A delivery is flagged as extremely late if its actual delivery time is more than 20 minutes after its predicted delivery time. In each month, what percentage of placed orders were extremely late?
+--A delivery is flagged as extremely late if its actual delivery time is more than 20 minutes after its predicted delivery time. 
+--In each month, what percentage of placed orders were extremely late?
 --Output the month in a YYYY-MM format and the corresponding proportion of the extremely late orders as the percentage of all orders placed in this month.
 WITH a AS (SELECT * FROM delivery_orders
 	WHERE DATEDIFF(MINUTE,predicted_delivery_time,actual_delivery_time)>20),
