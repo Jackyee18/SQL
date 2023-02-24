@@ -128,6 +128,13 @@ b AS
 SELECT CONVERT(DECIMAL(5,2),100-CAST(category_name_in_sale AS DECIMAL(5,2))/total_category*100) AS percentage_of_product_categories_not_sold
 FROM a,b
 
+--Highest Sales with Promotions
+--Which products had the highest sales (in terms of units sold) in each promotion? 
+--Output promotion id, product id with highest sales and highest sales itself.
+SELECT product_id, promotion_id, SUM(units_sold) AS units_sold
+FROM facebook_sales
+GROUP BY product_id, promotion_id
+
 --First and Last Day
 --What percentage of transactions happened on first and last day of the promotion. Segment results per promotion.
 --Output promotion id, percentage of transactions on the first day and percentage of transactions on the last day.
@@ -420,7 +427,7 @@ c AS (SELECT * FROM amazon_orders
 d AS (SELECT user_id, COUNT(1) AS orders_2021
 	FROM a
 	GROUP BY user_id)
-SELECT b.user_id, b.orders_2020, d.orders_2021 
+SELECT b.user_id, b.orders_2020, d.orders_2021 Highest Earning Merchants
 FROM b
 JOIN d
 ON b.user_id=d.user_id
@@ -509,7 +516,7 @@ FROM c, d
 --Cookbook Recipes
 --You are given the table with titles of recipes from a cookbook and their page numbers. You are asked to represent how the recipes will be distributed in the book.
 --Produce a table consisting of three columns: left_page_number, left_title and right_title. 
---The k-th row (counting from 0), should contain the number and the title of the page with the number 2 \times k2◊k in the first and second columns respectively, and the title of the page with the number 2 \times k + 12◊k+1 in the third column.
+--The k-th row (counting from 0), should contain the number and the title of the page with the number 2 \times k2√ók in the first and second columns respectively, and the title of the page with the number 2 \times k + 12√ók+1 in the third column.
 --Each page contains at most 1 recipe. If the page does not contain a recipe, the appropriate cell should remain empty (NULL value). 
 --Page 0 (the internal side of the front cover) is guaranteed to be empty.
 WITH a AS 
@@ -526,7 +533,7 @@ JOIN even e
 ON o.row_number = e.row_number
 
 --Premium Acounts
---You are given a dataset that provides the number of active users per day per premium account. A premium account will have an entry for every day that itís premium. 
+--You are given a dataset that provides the number of active users per day per premium account. A premium account will have an entry for every day that it‚Äôs premium. 
 --However, a premium account may be temporarily discounted and considered not paid, this is indicated by a value of 0 in the final_price column for a certain day. 
 --Find out how many premium accounts that are paid on any given day are still premium and paid 7 days later.
 --Output the date, the number of premium and paid accounts on that day, and the number of how many of these accounts are still premium and paid 7 days later. 
@@ -888,6 +895,14 @@ FROM a
 JOIN b
 ON a.service_name=b.service_name
 
+--Total Monatery Value Per Month/Service
+--Find the total monetary value for completed orders by service type for every month. Output your result as a pivot table where there is a column for month and columns for each service type.
+SELECT service_name,MONTH(order_date) AS month, SUM(monetary_value) AS order_amt
+FROM uber_orders
+WHERE status_of_order='Completed'
+GROUP BY service_name,MONTH(order_date)
+
+
 --Days Without Hiring/Termination
 --Write a query to calculate the longest period (in days) that the company has gone without hiring anyone. Also, calculate the longest period without firing anyone. 
 --Limit yourself to dates inside the table (last hiring/termination date should be the latest hiring /termination date from table), don't go into future.
@@ -910,9 +925,9 @@ FROM uber_employees
 --WFM Brand Segmentation based on Customer Activity
 --WFM would like to segment the customers in each of their store brands into Low, Medium, and High segmentation. The segments are to be based on a customer's average basket size which is defined as (total sales / count of transactions), per customer.
 --The segment thresholds are as follows:
---If average basket size is more than $30, then Segment is ìHighî.
---If average basket size is between $20 and $30, then Segment is ìMediumî.
---If average basket size is less than $20, then Segment is ìLowî.
+--If average basket size is more than $30, then Segment is ‚ÄúHigh‚Äù.
+--If average basket size is between $20 and $30, then Segment is ‚ÄúMedium‚Äù.
+--If average basket size is less than $20, then Segment is ‚ÄúLow‚Äù.
 --Summarize the number of unique customers, the total number of transactions, total sales, and average basket size, grouped by store brand and segment for 2017.
 --Your output should include the brand, segment, number of customers, total transactions, total sales, and average basket size.
 SELECT store_brand, 
@@ -1095,7 +1110,7 @@ FROM fact_events
 GROUP BY client_id
 
 --Rush Hour Calls
---Redfin helps clients to find agents. Each client will have a unique request_id and each request_id has several calls. For each request_id, the first call is an ìinitial callî and all the following calls are ìupdate callsî.  
+--Redfin helps clients to find agents. Each client will have a unique request_id and each request_id has several calls. For each request_id, the first call is an ‚Äúinitial call‚Äù and all the following calls are ‚Äúupdate calls‚Äù.  
 --How many customers have called 3 or more times between 3 PM and 6 PM (initial and update calls combined)?
 SELECT request_id, COUNT(1) AS total_calls
 FROM redfin_call_tracking
@@ -1105,7 +1120,7 @@ HAVING COUNT(1)>=3
 
 --Update Call Duration
 --Redfin helps clients to find agents. Each client will have a unique request_id and each request_id has several calls. 
---For each request_id, the first call is an ìinitial callî and all the following calls are ìupdate callsî.  What's the average call duration for all update calls?
+--For each request_id, the first call is an ‚Äúinitial call‚Äù and all the following calls are ‚Äúupdate calls‚Äù.  What's the average call duration for all update calls?
 WITH a AS
 (SELECT 
 	created_on,
@@ -1125,7 +1140,7 @@ GROUP BY call_type
 
 --Initial Call Duration
 --Redfin helps clients to find agents. Each client will have a unique request_id and each request_id has several calls. 
---For each request_id, the first call is an ìinitial callî and all the following calls are ìupdate callsî.  What's the average call duration for all initial calls?
+--For each request_id, the first call is an ‚Äúinitial call‚Äù and all the following calls are ‚Äúupdate calls‚Äù.  What's the average call duration for all initial calls?
 WITH a AS
 (SELECT 
 	created_on,
@@ -1177,7 +1192,7 @@ FROM a
 WHERE rank_total_calls<=2
 
 --Pizza Partners
---Which partners have ëpizzaí in their name and are located in Boston? And what is the average order amount? Output the partner name and the average order amount.
+--Which partners have ‚Äòpizza‚Äô in their name and are located in Boston? And what is the average order amount? Output the partner name and the average order amount.
 SELECT c.name, AVG(amount) AS avg_amt
 FROM postmates_orders a
 JOIN postmates_markets b
@@ -1230,7 +1245,7 @@ SELECT country, users_per_country, CONVERT(DECIMAL(5,2),CAST(users_per_country A
 FROM a, b
 
 --Recent Refinance Submissions
---Write a query that joins this submissions table to the loans table and returns the total loan balance on each userís most recent ëRefinanceí submission. Return all users and the balance for each of them.
+--Write a query that joins this submissions table to the loans table and returns the total loan balance on each user‚Äôs most recent ‚ÄòRefinance‚Äô submission. Return all users and the balance for each of them.
 SELECT * 
 FROM loans a
 JOIN submissions b
@@ -1281,10 +1296,10 @@ GROUP BY user_id
 --When people fly long distances, a direct city-to-city flight is often more expensive than taking two flights with a stop in a hub city. 
 --Travelers might save even more money by breaking the trip into three flights with two stops. But for the purposes of this challenge, let's assume that no one is willing to stop three times! 
 --You have a table with individual airport-to-airport flights, which contains the following columns:
---ï id - the unique ID of the flight;
---ï origin - the origin city of the current flight;
---ï destination - the destination city of the current flight;
---ï cost - the cost of current flight.
+--‚Ä¢ id - the unique ID of the flight;
+--‚Ä¢ origin - the origin city of the current flight;
+--‚Ä¢ destination - the destination city of the current flight;
+--‚Ä¢ cost - the cost of current flight.
 --Your task is to produce a trips table that lists all the cheapest possible trips that can be done in two or fewer stops. This table should have the columns origin, destination and total_cost (cheapest one). Sort the output table by origin, then by destination. The cities are all represented by an abbreviation composed of three uppercase English letters. Note: A flight from SFO to JFK is considered to be different than a flight from JFK to SFO.
 --Example of the output:
 --origin | destination | total_cost
@@ -1478,6 +1493,16 @@ FROM a
 GROUP BY restaurant_id
 ORDER BY SUM(sales_amount) DESC
 
+--Most Profitable City of 2021
+--It's the end-of-year review, and you've been tasked with identifying the city with the most profitable month in 2021.
+--The output should provide the city, the most profitable month, and the profit.
+SELECT city, SUM(order_fare) AS total_fare
+FROM lyft_orders a
+JOIN lyft_payment_details b 
+ON a.order_id=b.order_id
+GROUP BY city
+ORDER BY 2 DESC
+
 ---- Old And Young Athletes
 --Find the old-to-young player ratio for each Olympic games. 
 --'Old' is defined as ages 50 and older and 'young' is defined as athletes 25 or younger. 
@@ -1544,9 +1569,9 @@ WHERE salary = (SELECT MAX(salary) FROM a)
 --Meta/Facebook is developing a search algorithm that will allow users to search through their post history. You have been assigned to evaluate the performance of this algorithm.
 --We have a table with the user's search term, search result positions, and whether or not the user clicked on the search result.
 --Write a query that assigns ratings to the searches in the following way:
---ï	If the search was not clicked for any term, assign the search with rating=1
---ï	If the search was clicked but the top position of clicked terms was outside the top 3 positions, assign the search a rating=2
---ï	If the search was clicked and the top position of a clicked term was in the top 3 positions, assign the search a rating=3
+--‚Ä¢	If the search was not clicked for any term, assign the search with rating=1
+--‚Ä¢	If the search was clicked but the top position of clicked terms was outside the top 3 positions, assign the search a rating=2
+--‚Ä¢	If the search was clicked and the top position of a clicked term was in the top 3 positions, assign the search a rating=3
 --As a search ID can contain more than one search term, select the highest rating for that search ID. Output the search ID and it's highest rating.
 --Example: The search_id 1 was clicked (clicked = 1) and it's position is outside of the top 3 positions (search_results_position = 5), therefore it's rating is 2.
 WITH a AS
@@ -1635,11 +1660,11 @@ SELECT month, total_amt, AVG(total_amt) OVER(ORDER BY month rows between 2 prece
 FROM a
 
 --Naive Forecasting
---Some forecasting methods are extremely simple and surprisingly effective. NaÔve forecast is one of them; we simply set all forecasts to be the value of the last observation. 
---Our goal is to develop a naÔve forecast for a new metric called "distance per dollar" defined as the (distance_to_travel/monetary_cost) in our dataset and measure its accuracy.
+--Some forecasting methods are extremely simple and surprisingly effective. Na√Øve forecast is one of them; we simply set all forecasts to be the value of the last observation. 
+--Our goal is to develop a na√Øve forecast for a new metric called "distance per dollar" defined as the (distance_to_travel/monetary_cost) in our dataset and measure its accuracy.
 --To develop this forecast,  sum "distance to travel"  and "monetary cost" values at a monthly level before calculating "distance per dollar". This value becomes your actual value for the current month. 
 --The next step is to populate the forecasted value for each month. This can be achieved simply by getting the next month of value in a separate column. 
---Now, we have actual and forecasted values. This is your naÔve forecast. Letís evaluate our model by calculating an error matrix called root mean squared error (RMSE). 
+--Now, we have actual and forecasted values. This is your na√Øve forecast. Let‚Äôs evaluate our model by calculating an error matrix called root mean squared error (RMSE). 
 --RMSE is defined as sqrt(mean(square(actual - forecast)). Report out the RMSE rounded to the 2nd decimal spot.
 WITH a AS (SELECT MONTH(request_date) AS month, SUM(distance_to_travel) AS total_distance, SUM(monetary_cost) AS total_cost,
 			SUM(distance_to_travel)/SUM(monetary_cost) AS actual_dpd, 
@@ -1677,7 +1702,7 @@ FROM a
 WHERE rank <6
 
 --Distance Per Dollar
---Youíre given a dataset of uber rides with the traveling distance (distance_to_travel) and cost (monetary_cost) for each ride. For each date, find the sum between the distance-per-dollar for that date and the average distance-per-dollar for that year-month. 
+--You‚Äôre given a dataset of uber rides with the traveling distance (distance_to_travel) and cost (monetary_cost) for each ride. For each date, find the sum between the distance-per-dollar for that date and the average distance-per-dollar for that year-month. 
 --Distance-per-dollar is defined as the distance traveled divided by the cost of the ride.
 --The output should include the year-month (YYYY-MM) and the absolute average sum in distance-per-dollar (Absolute value to be rounded to the 2nd decimal).
 --You should also count both success and failed request_status as the distance and cost values are populated for all ride requests. Also, assume that all dates are unique in the dataset. Order your results by earliest request date first.
@@ -1864,8 +1889,8 @@ GROUP BY nominee, top_genre
 ORDER BY 3 DESC, 1
 
 --Highest Total Miles
---Youíre given a table of Uber rides that contains the mileage and the purpose for the business expense.  
---Youíre asked to find business purposes that generate the most miles driven for passengers that use Uber for their business transportation. 
+--You‚Äôre given a table of Uber rides that contains the mileage and the purpose for the business expense.  
+--You‚Äôre asked to find business purposes that generate the most miles driven for passengers that use Uber for their business transportation. 
 --Find the top 3 business purpose categories by total mileage.
 SELECT TOP 3 purpose, SUM(miles) AS total_mileage 
 FROM my_uber_drives
@@ -2151,8 +2176,8 @@ WHERE to_type='host'
 GROUP BY to_user
 
 --Favorite Host Nationality
---For each guest reviewer, find the nationality of the reviewerís favorite host based on the guestís lowest review score given to a host. 
---Output the user ID of the guest along with their favorite hostís nationality. In case there is less than one favorite host from the same country, list that country only once (remove duplicates).
+--For each guest reviewer, find the nationality of the reviewer‚Äôs favorite host based on the guest‚Äôs lowest review score given to a host. 
+--Output the user ID of the guest along with their favorite host‚Äôs nationality. In case there is less than one favorite host from the same country, list that country only once (remove duplicates).
 --Both the from_user and to_user columns are user IDs.
 SELECT from_user, nationality, SUM(review_score) AS total_review_scores
 FROM airbnb_reviews a
@@ -3172,7 +3197,7 @@ FROM employee
 GROUP BY department
 
 --Percentage Of Total Spend
---Calculate the percentage of the total spend a customer spent on each order. Output the customerís first name, order details, and percentage of the order cost to their total spend across all orders.
+--Calculate the percentage of the total spend a customer spent on each order. Output the customer‚Äôs first name, order details, and percentage of the order cost to their total spend across all orders.
 --Assume each customer has a unique first name (i.e., there is only 1 customer named Karen in the dataset) and that customers place at most only 1 order a day.
 --Percentages should be represented as decimals
 SELECT first_name, total_order_cost AS total_each_order, SUM(total_order_cost) OVER(PARTITION BY cust_id) AS total_orders_cost, 
@@ -3689,7 +3714,425 @@ FROM a,b
 --Count the subpopulations across datasets. Assume that a subpopulation is a group of users sharing a common interest (ex: Basketball, Food). 
 --Output the percentage of overlapping interests for two posters along with those poster's IDs. 
 --Calculate the percentage from the number of poster's interests. The poster column in the dataset refers to the user that posted the comment.
-SELECT * FROM facebook_posts
+SELECT *, LEN(post_keywords)-LEN(REPLACE(post_keywords,',',''))+1 AS number_interests
+FROM facebook_posts
+
+--Day 1 Common Reactions
+--Find the most common reaction for day 1 by counting the number of occurrences for each reaction. 
+--Output the reaction alongside its number of occurrences.
+SELECT reaction, COUNT(1) AS number_reaction
+FROM facebook_reactions
+GROUP BY reaction
+
+--Most Popular Room Types
+--Find the room types that are searched by most people. 
+--Output the room type alongside the number of searches for it. 
+--If the filter for room types has more than one room type, consider each unique room type as a separate row. 
+--Sort the result based on the number of searches in descending order.
+WITH a AS
+(SELECT value AS room_types, n_searches
+FROM airbnb_searches
+CROSS APPLY string_split(filter_room_types,','))
+SELECT room_types, SUM(n_searches) AS total_searches
+FROM a
+WHERE room_types!=''
+GROUP BY room_types
+
+--Find the day of the week that most people check-in
+--Find the day of the week that most people want to check-in.
+--Output the day of the week alongside the corresponding check-incount.
+SELECT DATEPART(WEEKDAY,ds_checkin) AS weekday, COUNT(1) as total_checkin
+FROM airbnb_contacts
+GROUP BY DATEPART(WEEKDAY,ds_checkin)
+ORDER BY 2 DESC
+
+--Find the number of nights that are searching for when trying to book a host
+--Find the number of nights that are searched by most people when trying to book a host.
+--Output the number of nights alongside the total searches.
+--Order records based on the total searches in descending order.
+SELECT n_nights, SUM(n_searches) AS total_searches
+FROM airbnb_searches
+WHERE n_nights IS NOT NULL
+GROUP BY n_nights
+ORDER BY 2 DESC
+
+--NFL Powerhouse Colleges
+--Find colleges that produce the most NFL players.  
+--Output the college name and the player count. Order the result based on the player count in descending order. 
+--Players that were not drafted into the NFL have 0s as values in the pickround column.
+SELECT college, COUNT(1) AS players
+FROM nfl_combine
+WHERE college IS NOT NULL
+GROUP BY college
+ORDER BY 2 DESC
+
+--Best Actors/Actresses Of All Time
+--Find the best actors/actresses of all time based on the number of Oscar awards. 
+--Output nominees alongside their number of Oscars. Order records in descending order based on the number of awards.
+SELECT nominee, COUNT(*) oscar_winnings
+FROM oscar_nominees
+WHERE winner=1
+GROUP BY nominee
+ORDER BY 2 DESC
+
+--Find movies that had the most nominated actors/actresses
+--Find movies that had the most nominated actors/actresses. Be aware of the fact that some movies have the same name. 
+--Use the year column to separate count for such movies.
+--Output the movie name alongside the number of nominees.
+--Order the result in descending order.
+SELECT movie, COUNT(1) AS number_nominee
+FROM oscar_nominees
+GROUP BY movie
+ORDER BY 2 DESC
+
+--Win-to-Nomination Ratio
+--Calculate the win-to-nomination ratio for each nominee. Output the ratio and the nominee's name. 
+--Order the results based on the ratio in descending order to show nominees with the highest ratio on top.
+WITH a AS
+	(SELECT nominee, COUNT(1) AS total_nominations
+	FROM oscar_nominees
+	GROUP BY nominee),
+b AS
+	(SELECT nominee, COUNT(1) AS total_winnings
+	FROM oscar_nominees
+	WHERE winner=1
+	GROUP BY nominee)
+SELECT a.nominee, total_winnings, total_nominations, CONVERT(DECIMAL(5,2),CAST(total_winnings AS DECIMAL(5,2))/total_nominations*100) AS wining_ratio
+FROM a
+JOIN b
+ON a.nominee=b.nominee
+ORDER BY 4 DESC
+
+--Nominees Without An Oscar
+--Find the nominees who have been nominated the most but have never won an Oscar. 
+--Output the number of unsuccessful nominations alongside the nominee's name. Order records based on the number of nominations in descending order.
+SELECT nominee, COUNT(1) AS total_nominations
+FROM oscar_nominees
+WHERE nominee NOT IN (SELECT DISTINCT(nominee)
+	FROM oscar_nominees
+	WHERE winner=1)
+GROUP BY nominee
+ORDER BY 2 DESC
+
+--Find the nominee who has won the most Oscars
+--Find the nominee who has won the most Oscars.
+--Output the nominee's name alongside the result.
+WITH a AS
+	(SELECT nominee, COUNT(1) AS oscars_winnings
+	FROM oscar_nominees
+	WHERE winner=1
+	GROUP BY nominee)
+SELECT nominee, oscars_winnings
+FROM a
+WHERE oscars_winnings=(SELECT MAX(oscars_winnings) FROM a)
+
+--Find districts with the most crime incidents
+--Find districts alongside their crime incidents.
+--Output the district name alongside the number of crime occurrences.
+--Order records based on the number of occurrences in descending order.
+SELECT pd_district, COUNT(1) AS number_of_crime 
+FROM sf_crime_incidents_2014_01
+GROUP BY pd_district
+
+--Find top crime categories in 2014 based on the number of occurrences
+--Find top crime categories in 2014 based on the number of occurrences.
+--Output the number of crime occurrences alongside the corresponding category name.
+--Order records based on the number of occurrences in descending order
+SELECT category, COUNT(*) AS number_of_crime
+FROM sf_crime_incidents_2014_01
+GROUP BY category
+ORDER BY 2 DESC
+
+--Find the best artists in the last 20 years
+--Find the best artists in the last 20 years.
+--Use the metric (100 - avg_yearly_rank) * number_of_years_present to score each artist.
+--Output the artist's name and the average yearly rank alongside the score.
+--Order records based on the score in descending order.
+WITH a AS
+(SELECT artist, AVG(year_rank) AS avg_yearly_rank 
+FROM billboard_top_100_year_end
+GROUP BY artist),
+b AS
+(SELECT artist, MAX(year) AS number_of_years_present
+FROM billboard_top_100_year_end
+GROUP BY artist)
+SELECT a.artist, (100-avg_yearly_rank)*number_of_years_present AS score
+FROM a
+JOIN b
+ON a.artist=b.artist
+ORDER BY 2 DESC
+
+--The Best Artist
+--Find the number of times an artist has been on the billboard top 100 in the past 20 years. 
+--Output the result alongside the artist's name and order records based on the founded count in descending order.
+SELECT artist, COUNT(1) AS counts
+FROM billboard_top_100_year_end
+GROUP BY artist
+ORDER BY 2 DESC
+
+--Top 10 Songs
+--Find the number of songs of each artist which were ranked among the top 10 over the years. Order the result based on the number of top 10 ranked songs in descending order.
+SELECT artist, COUNT(DISTINCT(song_name)) AS songs
+FROM billboard_top_100_year_end
+WHERE year_rank<=10
+GROUP BY artist
+ORDER BY 2 DESC
+
+--Inspection Scores For Businesses
+--Find the median inspection score of each business and output the result along with the business name. 
+--Order records based on the inspection score in descending order.
+--Try to come up with your own precise median calculation. 
+--In Postgres there is percentile_disc function available, however it's only approximation.
+SELECT business_name, inspection_score,
+	PERCENTILE_CONT(0.5) WITHIN GROUP 
+	(ORDER BY inspection_score) OVER () AS median_score 
+FROM sf_restaurant_health_violations
+ORDER BY 2 DESC
+
+--Daily Violation Counts
+--Determine the change in the number of daily violations by calculating the difference between the count of current and previous violations by inspection date.
+--Output the inspection date and the change in the number of daily violations. Order your results by the earliest inspection date first.
+WITH a AS
+	(SELECT inspection_date, COUNT(*) AS violation_count
+	FROM sf_restaurant_health_violations
+	GROUP BY inspection_date)
+SELECT inspection_date, 
+	violation_count, 
+	LAG(violation_count) OVER(ORDER BY inspection_date DESC) AS previous_violations,
+	violation_count-LAG(violation_count) OVER(ORDER BY inspection_date DESC) AS violation_diff
+FROM a
+ORDER BY 1
+
+--Worst Businesses
+--For every year, find the worst business in the dataset. The worst business has the most violations during the year. You should output the year, business name, and number of violations.
+WITH a AS
+	(SELECT YEAR(inspection_date) AS year,business_name, COUNT(1) AS counts
+	FROM sf_restaurant_health_violations
+	GROUP BY YEAR(inspection_date),business_name),
+b AS
+(SELECT year, 
+	FIRST_VALUE(business_name) OVER(PARTITION BY year ORDER BY counts DESC) AS business_name, 
+	FIRST_VALUE(counts) OVER(PARTITION BY year ORDER BY counts DESC) AS violation_counts
+FROM a)
+SELECT year, business_name, violation_counts
+FROM b
+GROUP BY year, business_name, violation_counts
+
+--Verify that the first 4 digits are equal to 1415 for all phone numbers
+--Verify that the first 4 digits are equal to 1415 for all phone numbers.
+SELECT business_id,business_name,business_phone_number,
+	CASE WHEN LEFT(business_phone_number,4)=1415 THEN 'Yes' ELSE 'No' END AS flag
+FROM sf_restaurant_health_violations
+
+--Rules To Determine Grades
+--Find the rules used to determine each grade. Show the rule in a separate column in the format of 'Score > X AND Score <= Y => Grade = A' where X and Y are the lower and upper bounds for a grade. 
+--Output the corresponding grade and its highest and lowest scores along with the rule. Order the result based on the grade in ascending order.
+SELECT grade, MIN(score) AS X,MAX(score) AS Y
+FROM los_angeles_restaurant_health_inspections
+GROUP BY grade
+
+--Single Facility Corporations
+--Find all owners which have only a single facility. Output the owner_name and order the results alphabetically.
+SELECT owner_name
+FROM los_angeles_restaurant_health_inspections
+GROUP BY owner_name
+HAVING COUNT(1)=1
+
+--3rd Most Reported Health Issues
+--Each record in the table is a reported health issue and its classification is categorized by the facility type, size, risk score which is found in the pe_description column.
+--If we limit the table to only include businesses with Cafe, Tea, or Juice in the name, find the 3rd most common category (pe_description). Output the name of the facilities that contain 3rd most common category.
+WITH a AS
+	(SELECT pe_description, COUNT(1) AS count
+	FROM los_angeles_restaurant_health_inspections
+	WHERE facility_name LIKE '%cafe%'
+	OR facility_name LIKE '%tea%'
+	OR facility_name LIKE '%juice%'
+	GROUP BY pe_description),
+b AS
+	(SELECT pe_description, count, RANK() OVER(ORDER BY count DESC) AS rank 
+	FROM a)
+SELECT *
+FROM los_angeles_restaurant_health_inspections
+WHERE facility_name LIKE '%cafe%'
+	OR facility_name LIKE '%tea%'
+	OR facility_name LIKE '%juice%'
+	AND pe_description IN (SELECT pe_description FROM b WHERE rank=3)
+
+--Find the total number of inspections with low risk in 2017
+--Find the total number of inspections with low risk in 2017.
+SELECT COUNT(1) AS number_of_inspections
+FROM los_angeles_restaurant_health_inspections
+WHERE YEAR(activity_date)=2017
+AND pe_description LIKE '%LOW RISK%'
+
+--Find the month which had the lowest number of inspections across all years
+--Find the month which had the lowest number of inspections across all years.
+--Output the number of inspections along with the month.
+SELECT MONTH(activity_date) AS month, COUNT(1) number_of_inspections
+FROM los_angeles_restaurant_health_inspections
+GROUP BY MONTH(activity_date)
+ORDER BY 2
+
+--Find the variance and the standard deviation of scores that have grade A
+--Find the variance of scores that have grade A using the formula AVG((X_i - mean_x) ^ 2).
+--Output the result along with the corresponding standard deviation.
+WITH a AS
+	(SELECT AVG(score) AS mean_score
+	FROM los_angeles_restaurant_health_inspections
+	WHERE grade='A')
+SELECT AVG(SQUARE(score-mean_score)) AS variance
+	, SQRT(AVG(SQUARE(score-mean_score))) AS std
+FROM a,los_angeles_restaurant_health_inspections
+WHERE grade='A'
+
+SELECT VAR(score) AS variance,
+	stdev(score) AS std
+FROM los_angeles_restaurant_health_inspections
+WHERE grade='A'
+
+--Owners With 3 Grades
+--Find the owners who have at least one facility with all 3 grades.
+WITH a AS
+	(SELECT owner_name,COUNT(1) AS a_grade
+	FROM la_restaurant_health_inspections
+	WHERE grade='A'
+	GROUP BY owner_name),
+b AS
+	(SELECT owner_name,COUNT(1) AS b_grade
+	FROM la_restaurant_health_inspections
+	WHERE grade='B'
+	GROUP BY owner_name),
+c AS
+	(SELECT owner_name,COUNT(1) AS c_grade
+	FROM la_restaurant_health_inspections
+	WHERE grade='C'
+	GROUP BY owner_name)
+SELECT a.owner_name, a_grade, b_grade, c_grade
+FROM a
+JOIN b
+ON a.owner_name=b.owner_name
+JOIN c
+ON a.owner_name=c.owner_name
+
+--Facilities With Lots Of Inspections
+--Find the facility that got the highest number of inspections in 2017 compared to other years. Compare the number of inspections per year and output only facilities that had the number of inspections greater in 2017 than in any other year.
+--Each row in the dataset represents an inspection. Base your solution on the facility name and activity date fields.
+WITH a AS
+	(SELECT facility_name,[2015],[2016],[2017],[2018]
+	FROM  
+		(SELECT facility_name, YEAR(activity_date) AS year
+		FROM los_angeles_restaurant_health_inspections)   
+		AS SourceTable
+	PIVOT  
+	(  
+		COUNT(year)  
+	FOR year IN ([2015],[2016],[2017],[2018])  
+	) AS PivotTable)
+SELECT facility_name, [2015],[2016],[2017],[2018]
+FROM a
+WHERE [2017]>[2015]
+AND [2017]>[2016]
+AND [2017]>[2018]
+
+--Find the first and last times the maximum score was awarded
+--Find the first and last times the maximum score was awarded
+SELECT MIN(activity_date) AS first_time_max_score, MAX(activity_date) AS last_time_max_score
+FROM los_angeles_restaurant_health_inspections
+WHERE score = (SELECT MAX(score) FROM los_angeles_restaurant_health_inspections)
+
+--Find the scores of 4 quartiles of each company
+--Output the company name along with the corresponding score of each quartile.
+--Order records based on the average score of all quartiles in ascending order.
+SELECT facility_name, score,
+	PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY score) OVER (PARTITION BY facility_name) AS min_score,
+	PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY score) OVER (PARTITION BY facility_name) AS percentile_cont_25,
+	PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY score) OVER (PARTITION BY facility_name) AS percentile_cont_50,
+	PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY score) OVER (PARTITION BY facility_name) AS percentile_cont_75,
+	PERCENTILE_CONT(1) WITHIN GROUP (ORDER BY score) OVER (PARTITION BY facility_name) AS max_score
+FROM los_angeles_restaurant_health_inspections
+GROUP BY facility_name
+
+--Dates Of Inspection
+--Find the latest inspection date for the most sanitary restaurant(s). Assume the most sanitary restaurant is the one with the highest number of points received in any inspection (not just the last one). 
+--Only businesses with 'restaurant' in the name should be considered in your analysis.
+--Output the corresponding facility name, inspection score, latest inspection date, previous inspection date, and the difference between the latest and previous inspection dates. 
+--And order the records based on the latest inspection date in ascending order.
+WITH a AS
+(SELECT facility_name, score, activity_date, 
+	FIRST_VALUE(activity_date) OVER(PARTITION BY facility_name ORDER BY activity_date DESC) AS latest_inspection_date,
+	FIRST_VALUE(score) OVER(PARTITION BY facility_name ORDER BY activity_date DESC) AS latest_inspection_score,
+	LEAD(activity_date) OVER(PARTITION BY facility_name ORDER BY activity_date DESC) AS last_inspection_date,
+	LEAD(score) OVER(PARTITION BY facility_name ORDER BY activity_date DESC) AS last_inspection_score
+FROM los_angeles_restaurant_health_inspections
+WHERE facility_name LIKE '%RESTAURANT%')
+SELECT * FROM a
+WHERE activity_date=latest_inspection_date
+
+--Top 3 Facilities
+--Find the top 3 facilities for each owner. The top 3 facilities can be identified using the highest average score for each owner name and facility address grouping.
+--The output should include 4 columns: owner name, top 1 facility address, top 2 facility address, and top 3 facility address. Order facilities with the same score alphabetically.
+WITH a AS
+	(SELECT owner_name, facility_name, AVG(score) AS avg_score
+	FROM los_angeles_restaurant_health_inspections
+	GROUP BY owner_name, facility_name),
+b AS
+(SELECT owner_name, 
+	FIRST_VALUE(facility_name) OVER(PARTITION BY owner_name ORDER BY avg_score DESC) AS top_1_facility, 
+	LAG(facility_name) OVER(PARTITION BY owner_name ORDER BY avg_score DESC) top_2_facility, 
+	LAG(facility_name,2) OVER(PARTITION BY owner_name ORDER BY avg_score DESC) top_3_facility
+FROM a)
+SELECT owner_name,MAX(top_1_facility) AS top_1 ,MAX(top_2_facility) AS top_2, MAX(top_3_facility) AS top_3
+FROM b
+GROUP BY owner_name
+
+--Find the postal code which has the highest average inspection score
+--Find the postal code which has the highest average inspection score.
+--Output the corresponding postal code along with the result.
+SELECT business_postal_code, AVG(inspection_score) AS avg_score
+FROM sf_restaurant_health_violations
+GROUP BY business_postal_code
+ORDER BY 2 DESC
+
+--Classify Business Type
+--Classify each business as either a restaurant, cafe, school, or other.
+--‚Ä¢	A restaurant should have the word 'restaurant' in the business name.
+--‚Ä¢	A cafe should have either 'cafe', 'caf√©', or 'coffee' in the business name.
+--‚Ä¢	A school should have the word 'school' in the business name.
+--‚Ä¢	All other businesses should be classified as 'other'.
+--Output the business name and their classification.
+SELECT 
+	CASE WHEN business_name LIKE '%restaurant%' THEN 'restaurant'
+		WHEN business_name LIKE '%cafe%' OR business_name LIKE '%caf√©%' OR business_name LIKE '%coffee%' THEN 'cafe'
+		WHEN business_name LIKE '%school%' THEN 'school'
+		ELSE 'other' END AS classification,
+business_name, business_address
+FROM sf_restaurant_health_violations
+
+--Find the number of violations that each school had
+--Find the number of violations that each school had. Any inspection is considered a violation if its risk category is not null.
+--Output the corresponding business name along with the result.
+--Order the result based on the number of violations in descending order.
+SELECT business_name, COUNT(1) AS inspections
+FROM sf_restaurant_health_violations
+WHERE business_name LIKE '%school%' AND risk_category IS NOT NULL
+GROUP BY business_name
+
+--Find industries that make a profit
+--Find all industries with a positive average profit. For those industries extract their lowest sale.
+--Output the industry along with the corresponding lowest sale and average profit.
+--Sort the output based on the lowest sales in ascending order.
+SELECT industry, MIN(sales) AS lowest_sales
+FROM forbes_global_2010_2014
+GROUP BY industry
+HAVING AVG(profits)>0
+
+--English, German, French, Spanish Speakers
+--Find ids of companies that have more than 2 users who speak English, German, French, or Spanish.
+SELECT company_id, COUNT(DISTINCT(user_id)) AS total_users
+FROM playbook_users
+WHERE language IN ('english','german','french','spanish')
+GROUP BY company_id
+HAVING COUNT(DISTINCT(user_id))>2
 
 --Find the list of intersections between both word lists
 WITH a AS (SELECT value
@@ -3754,6 +4197,28 @@ WHERE college IS NOT NULL
 SELECT year, COUNT(*) AS number_players FROM nfl_combine
 GROUP BY year
 
+--Find the top 10 ranked songs in 2010
+--What were the top 10 ranked songs in 2010?
+--Output the rank, group name, and song name but do not show the same song twice.
+--Sort the result based on the year_rank in ascending order.
+SELECT * FROM billboard_top_100_year_end
+WHERE year=2010 AND year_rank<=10
+
+--Find the unique room types
+--Find the unique room types(filter room types column). Output each unique room types in its own row.
+WITH a AS
+(SELECT value AS room_types
+FROM airbnb_searches
+CROSS APPLY string_split(filter_room_types,','))
+SELECT room_types
+FROM a
+WHERE room_types!=''
+GROUP BY room_types
+
+
+
+
+
 --Count the number of accounts used for logins in 2016
 --How many accounts have performed a login in the year 2016?
 SELECT COUNT(1) AS total_logins
@@ -3816,8 +4281,8 @@ HAVING neighbourhood IS NOT NULL
 ORDER BY 2 DESC
 
 --Host Popularity Rental Prices
---Youíre given a table of rental property searches by users. The table consists of search results and outputs host information for searchers. Find the minimum, average, maximum rental prices for each hostís popularity rating. 
--- The hostís popularity rating is defined as below:
+--You‚Äôre given a table of rental property searches by users. The table consists of search results and outputs host information for searchers. Find the minimum, average, maximum rental prices for each host‚Äôs popularity rating. 
+-- The host‚Äôs popularity rating is defined as below:
 --0 reviews: New
 --1 to 5 reviews: Rising
 --6 to 15 reviews: Trending Up
@@ -3871,6 +4336,12 @@ GROUP BY (CASE
 	WHEN number_of_reviews BETWEEN 6 AND 15 THEN 'SOME'
 	WHEN number_of_reviews BETWEEN 16 AND 40 THEN 'MANY'
 	ELSE 'A LOT' END)
+
+--Accommodates-To-Bed Ratio
+--Find the average accommodates-to-beds ratio for shared rooms in each city. Sort your results by listing cities with the highest ratios first.
+SELECT city, CONVERT(DECIMAL(5,2),CAST(AVG(accommodates)AS DECIMAL(5,2))/AVG(beds)) AS accommodates_to_beds 
+FROM airbnb_search_details
+GROUP BY city
 
 --3 Bed Minimum
 --Find the average number of beds in each neighborhood that has at least 3 beds in total.
