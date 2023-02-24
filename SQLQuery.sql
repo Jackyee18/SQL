@@ -49,8 +49,10 @@ JOIN d
 ON d.student_id=c.student_id
 
 --Completed Trip within 168 Hours
---An event is logged in the events table with a timestamp each time a new rider attempts a signup (with an event name 'attempted_su') or successfully signs up (with an event name of 'su_success').
---For each city and date, determine the percentage of signups in the first 7 days of 2022 that completed a trip within 168 hours of the signup date. HINT: driver id column corresponds to rider id column
+--An event is logged in the events table with a timestamp each time a new rider attempts a signup (with an event name 'attempted_su') 
+-- or successfully signs up (with an event name of 'su_success').
+--For each city and date, determine the percentage of signups in the first 7 days of 2022 that completed a trip within 168 hours of the signup date. 
+-- HINT: driver id column corresponds to rider id column
 WITH a AS(SELECT a.rider_id, a.city_id, a.timestamp, b.client_rating, b.driver_rating, b.status
 		FROM signup_events a
 		JOIN trip_details b
@@ -67,8 +69,11 @@ JOIN c
 ON d.city_id=c.city_id
 
 --Differences In Movie Ratings
---Calculate the average lifetime rating and rating from the movie with second biggest id across all actors and all films they had acted in. Remove null ratings from the calculation.
---Role type is "Normal Acting". Output a list of actors, their average lifetime rating, rating from the film with the second biggest id (use id column), and the absolute difference between the two ratings.
+--Calculate the average lifetime rating and rating from the movie with second biggest id across all actors and all films they had acted in. 
+--Remove null ratings from the calculation.
+--Role type is "Normal Acting". 
+--Output a list of actors, their average lifetime rating, rating from the film with the second biggest id (use id column), 
+-- and the absolute difference between the two ratings.
 WITH a AS (SELECT *, RANK() OVER(ORDER BY id DESC) AS ranking FROM nominee_filmography),
 b AS (SELECT id, name, rating FROM a WHERE ranking = 2),
 c AS (SELECT id, name, rating FROM nominee_filmography
@@ -204,7 +209,8 @@ ON a.resp_employee_id=b.id
 GROUP BY resp_employee_id, last_name
 
 --More Than 100 Dollars
---For each month of 2021, calculate what percentage of restaurants, out of these that fulfilled any orders in a given month, fulfilled more than 100$ in monthly sales?
+--For each month of 2021, calculate what percentage of restaurants, out of these that fulfilled any orders in a given month, 
+-- fulfilled more than 100$ in monthly sales?
 WITH a AS (SELECT *, MONTH(order_placed_time) AS month, YEAR(order_placed_time) AS year
 		FROM delivery_orders
 		WHERE YEAR(order_placed_time)=2021),
@@ -304,7 +310,8 @@ JOIN (SELECT territory_id,COUNT(1) AS total_customers
 ON a.territory_id=b.territory_id
 
 --Rows With Missing Values
---The data engineering team at YouTube want to clean the dataset user_flags. In particular, they want to examine rows that have missing values in more than one column. List these rows.
+--The data engineering team at YouTube want to clean the dataset user_flags. 
+--In particular, they want to examine rows that have missing values in more than one column. List these rows.
 SELECT * FROM user_flags
 WHERE user_firstname IS NULL
 OR user_lastname IS NULL
@@ -315,7 +322,8 @@ OR flag_id IS NULL
 --Write a query that returns every employee that has ever worked for the company. 
 --For each employee, calculate the greatest number of employees that worked for the company during their tenure and the first date that number was reached. 
 --The termination date of an employee should not be counted as a working day.
---Your output should have the employee ID, greatest number of employees that worked for the company during the employee's tenure, and first date that number was reached.
+--Your output should have the employee ID, greatest number of employees that worked for the company during the employee's tenure, 
+--and first date that number was reached.
 WITH a AS
 	(SELECT *, COUNT(1) OVER(ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_emps
 	FROM uber_employees),
@@ -331,7 +339,8 @@ ON a.hire_date=b.termination_date
 
 --Most Senior & Junior Employee
 --Write a query to find the number of days between the longest and least tenured employee still working for the company. 
---Your output should include the number of employees with the longest-tenure, the number of employees with the least-tenure, and the number of days between both the longest-tenured and least-tenured hiring dates.
+--Your output should include the number of employees with the longest-tenure, the number of employees with the least-tenure, 
+--and the number of days between both the longest-tenured and least-tenured hiring dates.
 WITH a AS
 	(SELECT *, DATEDIFF(DAY,hire_date,COALESCE(termination_date,GETDATE())) AS working_days FROM uber_employees),
 b AS
@@ -347,7 +356,8 @@ FROM b,c
 
 --World Tours
 --A group of travelers embark on world tours starting with their home cities. 
---Each traveler has an undecided itinerary that evolves over the course of the tour. Some travelers decide to abruptly end their journey mid-travel and live in their last destination.
+--Each traveler has an undecided itinerary that evolves over the course of the tour. 
+--Some travelers decide to abruptly end their journey mid-travel and live in their last destination.
 --Given the dataset of dates on which they travelled between different pairs of cities, can you find out how many travellers ended back in their home city? 
 --For simplicity, you can assume that each traveler made at most one trip between two cities in a day.
 WITH a AS (SELECT *, FIRST_VALUE(start_city) OVER(PARTITION BY traveler ORDER BY date) AS first_port, 
@@ -357,7 +367,8 @@ SELECT traveler, start_city,end_city, date FROM a
 WHERE first_port=last_port
 
 --Videos Removed on Latest Date
---For each unique user in the dataset, find the latest date when their flags got reviewed. Then, find total number of distinct videos that were removed on that date (by any user).
+--For each unique user in the dataset, find the latest date when their flags got reviewed. 
+--Then, find total number of distinct videos that were removed on that date (by any user).
 --Output the the first and last name of the user (in two columns), the date and the number of removed videos. 
 --Only include these users who had at least one of their flags reviewed by Youtube. If no videos got removed on a certain date, output 0.
 WITH a AS (SELECT reviewed_date, user_firstname, user_lastname, reviewed_outcome, video_id 
@@ -382,7 +393,8 @@ FROM a
 GROUP BY user_firstname, user_lastname
 
 --Reviewed flags of top videos
---For the video (or videos) that received the most user flags, how many of these flags were reviewed by YouTube? Output the video ID and the corresponding number of reviewed flags.
+--For the video (or videos) that received the most user flags, how many of these flags were reviewed by YouTube? 
+--Output the video ID and the corresponding number of reviewed flags.
 WITH a AS (SELECT video_id, a.flag_id, reviewed_by_yt FROM user_flags a
 		JOIN flag_review b
 		ON a.flag_id=b.flag_id),
@@ -398,7 +410,8 @@ JOIN d
 ON b.video_id=d.video_id
 
 --Flags per Video
---For each video, find how many unique users flagged it. A unique user can be identified using the combination of their first name and last name. Do not consider rows in which there is no flag ID.
+--For each video, find how many unique users flagged it. A unique user can be identified using the combination of their first name and last name. 
+--Do not consider rows in which there is no flag ID.
 WITH a AS 
 	(SELECT *, CONCAT(user_firstname,user_lastname) AS user_id 
 	FROM user_flags)
@@ -421,7 +434,8 @@ ON a.number!=b.number
 --Each person has 1 vote so if they vote for multiple candidates, their vote gets equally split across these candidates. 
 --For example, if a person votes for 2 candidates, these candidates receive an equivalent of 0.5 vote each.
 --Find out who got the most votes and won the election. 
---Output the name of the candidate or multiple names in case of a tie. To avoid issues with a floating-point error you can round the number of votes received by a candidate to 3 decimal places.
+--Output the name of the candidate or multiple names in case of a tie. 
+--To avoid issues with a floating-point error you can round the number of votes received by a candidate to 3 decimal places.
 WITH a AS (SELECT a.voter, vote_times, candidate, CAST(1 AS DECIMAL(4,2))/vote_times AS vote
 	FROM voting_results a
 	JOIN (SELECT voter, COUNT(1) AS vote_times
@@ -455,7 +469,8 @@ AND d.orders_2021>=3
 --Completed Tasks
 --Find the number of actions that ClassPass workers did for tasks completed in January 2022. 
 --The completed tasks are these rows in the asana_actions table with 'action_name' equal to CompleteTask. 
---Note that each row in the dataset indicates how many actions of a certain type one user has performed in one day and the number of actions is stored in the 'num_actions' column.
+--Note that each row in the dataset indicates how many actions of a certain type one user has performed in one day and the number of actions is stored in 
+--the 'num_actions' column.
 --Output the ID of the user and a total number of actions they performed for tasks they completed. 
 --If a user from this company did not complete any tasks in the given period of time, you should still output their ID and the number 0 in the second column.
 WITH a AS (SELECT a.user_id, num_actions, action_name, b.name, b.surname 
@@ -486,7 +501,8 @@ GROUP BY order_timestamp, name
 HAVING MAX(previous_amount_earned) IS NOT NULL
 
 --First Time Orders
---For each merchant, find how many orders and first-time orders they had. First-time orders are meant from the perspective of a customer and are the first order that a customer ever made. 
+--For each merchant, find how many orders and first-time orders they had. First-time orders are meant from the perspective of a customer and are 
+--the first order that a customer ever made. 
 --In order words, for how many customers was this the first-ever merchant they ordered with?
 --Output the name of the merchant, the total number of their orders and the number of these orders that were first-time orders.
 WITH a AS (SELECT *, FIRST_VALUE(order_timestamp) OVER(PARTITION BY merchant_id ORDER BY order_timestamp) AS first_order_date
@@ -534,7 +550,8 @@ FROM c, d
 --Cookbook Recipes
 --You are given the table with titles of recipes from a cookbook and their page numbers. You are asked to represent how the recipes will be distributed in the book.
 --Produce a table consisting of three columns: left_page_number, left_title and right_title. 
---The k-th row (counting from 0), should contain the number and the title of the page with the number 2 \times k2×k in the first and second columns respectively, and the title of the page with the number 2 \times k + 12×k+1 in the third column.
+--The k-th row (counting from 0), should contain the number and the title of the page with the number 2 \times k2×k in the first and second columns respectively, 
+--and the title of the page with the number 2 \times k + 12×k+1 in the third column.
 --Each page contains at most 1 recipe. If the page does not contain a recipe, the appropriate cell should remain empty (NULL value). 
 --Page 0 (the internal side of the front cover) is guaranteed to be empty.
 WITH a AS 
@@ -570,9 +587,12 @@ JOIN b
 ON a.row_number=b.row_number
 
 --Retention Rate
---Find the monthly retention rate of users for each account separately for Dec 2020 and Jan 2021. Retention rate is the percentage of active users an account retains over a given period of time.
---In this case, assume the user is retained if he/she stays with the app in any future months. For example, if a user was active in Dec 2020 and has activity in any future month, consider them retained for Dec.
---You can assume all accounts are present in Dec 2020 and Jan 2021. Your output should have the account ID and the Jan 2021 retention rate divided by Dec 2020 retention rate.
+--Find the monthly retention rate of users for each account separately for Dec 2020 and Jan 2021. Retention rate is the percentage of active users an account 
+--retains over a given period of time.
+--In this case, assume the user is retained if he/she stays with the app in any future months. 
+--For example, if a user was active in Dec 2020 and has activity in any future month, consider them retained for Dec.
+--You can assume all accounts are present in Dec 2020 and Jan 2021. 
+--Your output should have the account ID and the Jan 2021 retention rate divided by Dec 2020 retention rate.
 WITH a AS (SELECT account_id, date, COUNT(user_id) AS active_users
 	FROM sf_events
 	WHERE date < '2020-12-31'
@@ -593,7 +613,8 @@ SELECT * FROM linkedin_users
 WHERE employer ='Google' AND start_date='2021-11-01'
 
 --From Microsoft to Google
---Consider all LinkedIn users who, at some point, worked at Microsoft. For how many of them was Google their next employer right after Microsoft (no employers in between)?
+--Consider all LinkedIn users who, at some point, worked at Microsoft. For how many of them was Google their next employer right after Microsoft 
+--(no employers in between)?
 WITH a AS
 	(SELECT *, LEAD(employer) OVER(PARTITION BY user_id ORDER BY start_date) AS next_employer
 	FROM linkedin_users)
@@ -611,7 +632,8 @@ GROUP BY country
 
 --Recommendation System
 --You are given the list of Facebook friends and the list of Facebook pages that users follow. Your task is to create a new recommendation system for Facebook. 
---For each Facebook user, find pages that this user doesn't follow but at least one of their friends does. Output the user ID and the ID of the page that should be recommended to this user.
+--For each Facebook user, find pages that this user doesn't follow but at least one of their friends does. Output the user ID and the ID of the page that should 
+--be recommended to this user.
 SELECT a.user_id, b.page_id 
 FROM users_friends a
 JOIN users_pages b
@@ -621,7 +643,8 @@ AND a.friend_id=b.user_id
 --Blocked Users
 --You are given a table of users who have been blocked from Facebook, together with the date, duration, and the reason for the blocking. 
 --The duration is expressed as the number of days after blocking date and if this field is empty, this means that a user is blocked permanently.
---For each blocking reason, count how many users were blocked in December 2021. Include both the users who were blocked in December 2021 and those who were blocked before but remained blocked for at least a part of December 2021.
+--For each blocking reason, count how many users were blocked in December 2021. Include both the users who were blocked in December 2021 and those who 
+--were blocked before but remained blocked for at least a part of December 2021.
 WITH a AS
 	(SELECT *, DATEADD(DAY,block_duration,block_date) AS block_date_tail 
 	FROM fb_blocked_users
@@ -649,15 +672,18 @@ GROUP BY product_class
 ORDER BY 2 DESC
 
 --Fastest Hometowns
---Find the hometowns with the top 3 average net times. Output the hometowns and their average net time. In case there are ties in net time, return all unique hometowns.
+--Find the hometowns with the top 3 average net times. Output the hometowns and their average net time. In case there are ties in net time, return all 
+--unique hometowns.
 SELECT TOP 3 hometown, AVG(net_time) AS avg_net_times 
 FROM marathon_male 
 GROUP BY hometown 
 ORDER BY 2 DESC
 
 --Time from 10th Runner
---In a marathon, gun time is counted from the moment of the formal start of the race while net time is counted from the moment a runner crosses a starting line. Both variables are in seconds.
---How much net time separates Chris Doe from the 10th best net time (in ascending order)? Avoid gaps in the ranking calculation. Output absolute net time difference.
+--In a marathon, gun time is counted from the moment of the formal start of the race while net time is counted from the moment a runner crosses a starting line. 
+--Both variables are in seconds.
+--How much net time separates Chris Doe from the 10th best net time (in ascending order)? Avoid gaps in the ranking calculation. 
+--Output absolute net time difference.
 WITH a AS
 (SELECT CASE WHEN person_name='Chris Doe' THEN gun_time-net_time END AS chris_doe,
 CASE WHEN place=10 THEN gun_time-net_time END AS tenth_place
@@ -666,7 +692,8 @@ SELECT MAX(chris_doe) AS chris_doe, MAX(tenth_place) AS tenth_place
 FROM a
 
 --Number of Conversations
---Count the total number of distinct conversations on WhatsApp. Two users share a conversation if there is at least 1 message between them. Multiple messages between the same pair of users are considered a single conversation.
+--Count the total number of distinct conversations on WhatsApp. Two users share a conversation if there is at least 1 message between them. 
+--Multiple messages between the same pair of users are considered a single conversation.
 WITH a AS
 	(SELECT message_sender_id, message_receiver_id 
 	FROM whatsapp_messages
@@ -690,8 +717,10 @@ c AS
 SELECT MAX(platform) AS minimum_number_of_platform FROM c
 
 --Seat Availability
---A movie theater gave you two tables: seats that are available for an upcoming screening and neighboring seats for each seat listed. You are asked to find all pairs of seats that are both adjacent and available.
---Output only distinct pairs of seats in two columns such that the seat with the lower number is always in the first column and the one with the higher number is in the second column.
+--A movie theater gave you two tables: seats that are available for an upcoming screening and neighboring seats for each seat listed. 
+--You are asked to find all pairs of seats that are both adjacent and available.
+--Output only distinct pairs of seats in two columns such that the seat with the lower number is always in the first column and 
+--the one with the higher number is in the second column.
 WITH a AS
 (SELECT seat_number AS left_seat, seat_right AS right_seat 
 FROM theater_seatmap
@@ -717,7 +746,8 @@ HAVING CAST(SUM(CASE WHEN score <5 THEN 1 ELSE 0 END) AS DECIMAL(5,2))/COUNT(1)>
 
 --Popular Posts
 --The column 'perc_viewed' in the table 'post_views' denotes the percentage of the session duration time the user spent viewing a post. 
---Using it, calculate the total time that each post was viewed by users. Output post ID and the total viewing time in seconds, but only for posts with a total viewing time of over 5 seconds.
+--Using it, calculate the total time that each post was viewed by users. Output post ID and the total viewing time in seconds, but only for 
+--posts with a total viewing time of over 5 seconds.
 SELECT post_id, perc_viewed*DATEDIFF(SECOND,session_starttime,session_endtime)/100 AS view_in_second
 FROM post_views a
 JOIN user_sessions b
@@ -737,7 +767,8 @@ JOIN facebook_products b
 ON a.product_id=b.product_id
 
 --Manager of the Largest Department
---Given a list of a company's employees, find the name of the manager from the largest department. Manager is each employee that contains word "manager" under their position.  Output their first and last name.
+--Given a list of a company's employees, find the name of the manager from the largest department. Manager is each employee that contains word "manager" 
+--under their position.  Output their first and last name.
 WITH a AS
 (SELECT department_name, COUNT(1) AS total_emp
 FROM az_employees
@@ -750,8 +781,10 @@ WHERE position LIKE '%manager%' AND department_name in (SELECT department_name F
 
 --Monthly Churn Rate
 --Calculate the churn rate of September 2021 in percentages. 
---The churn rate is the difference between the number of customers on the first day of the month and on the last day of the month, divided by the number of customers on the first day of a month.
---Assume that if customer's contract_end is NULL, their contract is still active. Additionally, if a customer started or finished their contract on a certain day, they should still be counted as a customer on that day.
+--The churn rate is the difference between the number of customers on the first day of the month and on the last day of the month, divided by the number of customers
+--on the first day of a month.
+--Assume that if customer's contract_end is NULL, their contract is still active. Additionally, if a customer started or finished their contract on a certain day, 
+--they should still be counted as a customer on that day.
 WITH a AS
 (SELECT COUNT(*) AS customer_of_start_of_month FROM natera_subscriptions
 WHERE contract_start<='2021-09-01' AND contract_end>='2021-09-01'),
@@ -811,7 +844,8 @@ HAVING COUNT(1) > (SELECT COUNT(ID)/COUNT(DISTINCT(city_name)) FROM a)
 
 --Player with Longest Streak
 --You are given a table of tennis players and their matches that they could either win (W) or lose (L). Find the longest streak of wins. 
---A streak is a set of consecutive won matches of one player. The streak ends once a player loses their next match. Output the ID of the player or players and the length of the streak.
+--A streak is a set of consecutive won matches of one player. The streak ends once a player loses their next match. 
+--Output the ID of the player or players and the length of the streak.
 WITH a AS
 	(SELECT *, ROW_NUMBER() OVER(PARTITION BY player_id ORDER BY match_date) AS rn1
 	FROM players_results),
@@ -825,8 +859,10 @@ WHERE length_of_continous_win= (SELECT MAX(length_of_continous_win) AS longest_s
 GROUP BY player_id, length_of_continous_win
 
 --Retention Rate
---Find the monthly retention rate of users for each account separately for Dec 2020 and Jan 2021. Retention rate is the percentage of active users an account retains over a given period of time. 
---In this case, assume the user is retained if he/she stays with the app in any future months. For example, if a user was active in Dec 2020 and has activity in any future month, consider them retained for Dec. 
+--Find the monthly retention rate of users for each account separately for Dec 2020 and Jan 2021. Retention rate is the percentage of active users an account 
+--retains over a given period of time. 
+--In this case, assume the user is retained if he/she stays with the app in any future months. For example, if a user was active in Dec 2020 and has activity 
+--in any future month, consider them retained for Dec. 
 --You can assume all accounts are present in Dec 2020 and Jan 2021. 
 --Your output should have the account ID and the Jan 2021 retention rate divided by Dec 2020 retention rate.
 
@@ -854,9 +890,11 @@ LEFT JOIN a
 ON a.account_id=b.account_id
 
 --Difference Between Times
---In a marathon, gun time is counted from the moment of the formal start of the race while net time is counted from the moment a runner crosses a starting line. Both variables are in seconds.
+--In a marathon, gun time is counted from the moment of the formal start of the race while net time is counted from the moment a runner crosses a starting line. 
+--Both variables are in seconds.
 --You are asked to check if the interval between the two times is different for male and female runners. 
---First, calculate the average absolute difference between the gun time and net time. Group the results by available genders (male and female). Output the absolute difference between those two values.
+--First, calculate the average absolute difference between the gun time and net time. Group the results by available genders (male and female). 
+--Output the absolute difference between those two values.
 SELECT 'male' AS gender, AVG(ABS(gun_time-net_time)) AS time_diff FROM marathon_male
 UNION
 SELECT 'female' AS gender, AVG(ABS(gun_time-net_time)) AS time_diff FROM marathon_female
@@ -868,7 +906,8 @@ b AS
 SELECT male_time_diff,female_time_diff FROM a, b
 
 --User Growth Rate
---Find the growth rate of active users for Dec 2020 to Jan 2021 for each account. The growth rate is defined as the number of users in January 2021 divided by the number of users in Dec 2020. 
+--Find the growth rate of active users for Dec 2020 to Jan 2021 for each account. The growth rate is defined as the number of users in January 2021 divided by 
+--the number of users in Dec 2020. 
 --Output the account_id and growth rate.
 WITH a AS
 	(SELECT account_id, COUNT(*) AS total_user_2020
@@ -914,7 +953,8 @@ JOIN b
 ON a.service_name=b.service_name
 
 --Total Monatery Value Per Month/Service
---Find the total monetary value for completed orders by service type for every month. Output your result as a pivot table where there is a column for month and columns for each service type.
+--Find the total monetary value for completed orders by service type for every month. Output your result as a pivot table where there is a column for month and 
+--columns for each service type.
 SELECT service_name,MONTH(order_date) AS month, SUM(monetary_value) AS order_amt
 FROM uber_orders
 WHERE status_of_order='Completed'
@@ -934,14 +974,16 @@ WHERE two_hiring_date_period=(SELECT longest_hire_period FROM b)
 
 --Employees' Years In Service
 --Find employees who have worked for Uber for more than 2 years (730 days) and check to see if they're still part of the company. 
---Output 'Yes' if they are and 'No' if they are not. Use May 1, 2021 as your date of reference when calculating whether they have worked for more than 2 years since their hire date.
+--Output 'Yes' if they are and 'No' if they are not. Use May 1, 2021 as your date of reference when calculating whether they have worked for more than 2 years since 
+--their hire date.
 --Output the first name, last name, whether or not the employee is still working for Uber, and the number of years at the company.
 SELECT *, 
 CASE WHEN DATEDIFF(DAY,hire_date,COALESCE(termination_date,'2021-05-01'))>730 THEN 'Yes' ELSE 'No' END AS flag
 FROM uber_employees
 
 --WFM Brand Segmentation based on Customer Activity
---WFM would like to segment the customers in each of their store brands into Low, Medium, and High segmentation. The segments are to be based on a customer's average basket size which is defined as (total sales / count of transactions), per customer.
+--WFM would like to segment the customers in each of their store brands into Low, Medium, and High segmentation. The segments are to be based on 
+--a customer's average basket size which is defined as (total sales / count of transactions), per customer.
 --The segment thresholds are as follows:
 --If average basket size is more than $30, then Segment is “High”.
 --If average basket size is between $20 and $30, then Segment is “Medium”.
@@ -972,8 +1014,10 @@ FROM doordash_delivery
 GROUP BY restaurant_id
 
 --Lowest Revenue Generated Restaurants
---Write a query that returns a list of the bottom 2% revenue generating restaurants. Return a list of restaurant IDs and their total revenue from when customers placed orders in May 2020.
---You can calculate the total revenue by summing the order_total column. And you should calculate the bottom 2% by partitioning the total revenue into evenly distributed buckets.
+--Write a query that returns a list of the bottom 2% revenue generating restaurants. Return a list of restaurant IDs and their total revenue from when 
+--customers placed orders in May 2020.
+--You can calculate the total revenue by summing the order_total column. And you should calculate the bottom 2% by partitioning the total revenue into evenly 
+--distributed buckets.
 WITH a AS
 	(SELECT restaurant_id, SUM(order_total) AS total_revenue, PERCENT_RANK() OVER(ORDER BY SUM(order_total)) AS rank_revenue
 	FROM doordash_delivery
@@ -1024,7 +1068,8 @@ ON a.product_id=b.product_id
 GROUP BY product_category
 
 --Avg Order Cost During Rush Hours
---Write a query that returns the average order cost per hour during hours 3 PM -6 PM (15-18) in San Jose. For calculating time period use 'Customer placed order datetime' field. 
+--Write a query that returns the average order cost per hour during hours 3 PM -6 PM (15-18) in San Jose. For calculating time period use 
+--'Customer placed order datetime' field. 
 --Earnings value is 'Order total' field. Order output by hour.
 SELECT DATEPART(HOUR,customer_placed_order_datetime) AS hour, AVG(order_total) AS avg_cost_per_hour
 FROM doordash_delivery
@@ -1033,7 +1078,8 @@ AND DATEPART(HOUR,customer_placed_order_datetime) BETWEEN 15 AND 18
 GROUP BY DATEPART(HOUR,customer_placed_order_datetime)
 
 --Avg Earnings per Weekday and Hour
---Write a query that returns average earnings per order segmented by weekday and hour. For calculating the time period use 'Customer placed order datetime' field. Earnings value is 'Order total' field.
+--Write a query that returns average earnings per order segmented by weekday and hour. For calculating the time period use 'Customer placed order datetime' field. 
+--Earnings value is 'Order total' field.
 --Note: Our questions mimic real-life scenarios, where you would be working with different timezones, hence any day_of_week function works, 
 --but for the sake of having your answer accepted, consider the day_of_week function that marks Monday as 1 and Sunday as 7
 SELECT DATEPART(HOUR,customer_placed_order_datetime) AS hour, DATEPART(WEEKDAY,customer_placed_order_datetime) AS weekday, AVG(order_total) AS total_orders_amt
@@ -1057,7 +1103,8 @@ ORDER BY 4 DESC
 
 --Signups By Billing Cycle
 --Write a query that returns a table containing the number of signups for each weekday and for each billing cycle frequency.
---Output the weekday number (e.g., 1, 2, 3) as rows in your table and the billing cycle frequency (e.g., annual, monthly, quarterly) as columns. If there are NULLs in the output replace them with zeroes.
+--Output the weekday number (e.g., 1, 2, 3) as rows in your table and the billing cycle frequency (e.g., annual, monthly, quarterly) as columns. 
+--If there are NULLs in the output replace them with zeroes.
 SELECT billing_cycle, DATEPART(WEEKDAY,signup_start_date) AS weekday, COUNT(1) AS total_counts
 FROM signups a
 JOIN plans b
@@ -1065,8 +1112,10 @@ ON a.plan_id=b.id
 GROUP BY billing_cycle, DATEPART(WEEKDAY,signup_start_date)
 
 --Transactions By Billing Method and Signup ID
---Get list of signups which have a transaction start date earlier than 10 months ago from March 2021. For all of those users get the average transaction value and group it by the billing cycle.
---Your output should include the billing cycle, signup_id of the user, and average transaction amount. Sort your results by billing cycle in reverse alphabetical order and signup_id in ascending order.
+--Get list of signups which have a transaction start date earlier than 10 months ago from March 2021. 
+--For all of those users get the average transaction value and group it by the billing cycle.
+--Your output should include the billing cycle, signup_id of the user, and average transaction amount. 
+--Sort your results by billing cycle in reverse alphabetical order and signup_id in ascending order.
 SELECT billing_cycle, b.signup_id, AVG(amt) AS avg_tran_amt
 FROM transactions a
 JOIN signups b
@@ -1077,7 +1126,8 @@ WHERE DATEDIFF(MONTH,transaction_start_date,'2021-03-01')>=10
 GROUP BY billing_cycle, b.signup_id
 
 --The Most Popular Client_Id Among Users Using Video and Voice Calls
---Select the most popular client_id based on a count of the number of users who have at least 50% of their events from the following list: 'video call received', 'video call sent', 'voice call received', 'voice call sent'.
+--Select the most popular client_id based on a count of the number of users who have at least 50% of their events from the following list: 'video call received', 
+--'video call sent', 'voice call received', 'voice call sent'.
 WITH a AS
 	(SELECT user_id, COUNT(1) AS total_events
 	FROM fact_events
@@ -1128,7 +1178,8 @@ FROM fact_events
 GROUP BY client_id
 
 --Rush Hour Calls
---Redfin helps clients to find agents. Each client will have a unique request_id and each request_id has several calls. For each request_id, the first call is an “initial call” and all the following calls are “update calls”.  
+--Redfin helps clients to find agents. Each client will have a unique request_id and each request_id has several calls. For each request_id, the first call is 
+--an “initial call” and all the following calls are “update calls”.  
 --How many customers have called 3 or more times between 3 PM and 6 PM (initial and update calls combined)?
 SELECT request_id, COUNT(1) AS total_calls
 FROM redfin_call_tracking
@@ -1177,7 +1228,8 @@ WHERE call_type='initial call'
 GROUP BY call_type
 
 --Call Declines
---Which company had the biggest month decline in users placing a call from March to April 2020? Return the company_id and calls difference for the company with the highest decline.
+--Which company had the biggest month decline in users placing a call from March to April 2020? Return the company_id and calls difference for the company with 
+--the highest decline.
 WITH a AS
 	(SELECT b.company_id, COUNT(DISTINCT(a.user_id)) AS user_calls_in_march
 	FROM rc_calls a
@@ -1198,7 +1250,8 @@ JOIN b
 ON a.company_id=b.company_id
 
 --Top 2 Users With Most Calls
---Return the top 2 users in each company that called the most. Output the company_id, user_id, and the user's rank. If there are multiple users in the same rank, keep all of them.
+--Return the top 2 users in each company that called the most. Output the company_id, user_id, and the user's rank. If there are multiple users in the same rank, 
+--keep all of them.
 WITH a AS
 	(SELECT b.company_id, a.user_id, COUNT(1) AS total_calls, DENSE_RANK() OVER(PARTITION BY company_id ORDER BY COUNT(1) DESC) AS rank_total_calls
 	FROM rc_calls a
@@ -1242,7 +1295,8 @@ GROUP BY DATEPART(HOUR,order_timestamp_utc)
 ORDER BY 2 DESC
 
 --Top Streamers
---List the top 10 users who accumulated the most sessions where they had more streaming sessions than viewing. Return the user_id, number of streaming sessions, and number of viewing sessions.
+--List the top 10 users who accumulated the most sessions where they had more streaming sessions than viewing. Return the user_id, number of streaming sessions, 
+--and number of viewing sessions.
 SELECT 
 	user_id, 
 	SUM(CASE WHEN session_type='streamer' THEN 1 ELSE 0 END) AS streaming_session,
@@ -1263,7 +1317,8 @@ SELECT country, users_per_country, CONVERT(DECIMAL(5,2),CAST(users_per_country A
 FROM a, b
 
 --Recent Refinance Submissions
---Write a query that joins this submissions table to the loans table and returns the total loan balance on each user’s most recent ‘Refinance’ submission. Return all users and the balance for each of them.
+--Write a query that joins this submissions table to the loans table and returns the total loan balance on each user’s most recent ‘Refinance’ submission. 
+--Return all users and the balance for each of them.
 SELECT * 
 FROM loans a
 JOIN submissions b
@@ -1271,7 +1326,8 @@ ON a.id=b.loan_id
 WHERE type='Refinance'
 
 --Share of Loan Balance
---Write a query that returns the rate_type, loan_id, loan balance , and a column that shows with what percentage the loan's balance contributes to the total balance among the loans of the same rate type.
+--Write a query that returns the rate_type, loan_id, loan balance , and a column that shows with what percentage the loan's balance contributes to the total balance 
+--among the loans of the same rate type.
 SELECT *, 
 	SUM(balance) OVER(PARTITION BY rate_type ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS total_balance_by_rate_type, 
 	CONVERT(DECIMAL(5,2),CAST(balance AS DECIMAL(14,2))/SUM(balance) OVER(PARTITION BY rate_type ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)*100) AS share_within_rate_type
@@ -1366,10 +1422,11 @@ JOIN b
 ON a.country=b.country
 
 --Marketing Campaign Success [Advanced]
---You have a table of in-app purchases by user. Users that make their first in-app purchase are placed in a marketing campaign where they see call-to-actions for more in-app purchases. 
+--You have a table of in-app purchases by user. Users that make their first in-app purchase are placed in a marketing campaign where they see call-to-actions 
+--for more in-app purchases. 
 --Find the number of users that made additional in-app purchases due to the success of the marketing campaign.
---The marketing campaign doesn't start until one day after the initial in-app purchase so users that only made one or multiple purchases on the first day do not count, 
---nor do we count users that over time purchase only the products they purchased on the first day.
+--The marketing campaign doesn't start until one day after the initial in-app purchase so users that only made one or multiple purchases on the first day do not 
+--count, nor do we count users that over time purchase only the products they purchased on the first day.
 -- SOLUTION 1:
 WITH a AS
 (SELECT *, FIRST_VALUE(created_at) OVER(PARTITION BY user_id ORDER BY created_at) AS first_purchase_date
@@ -1408,7 +1465,8 @@ SELECT TOP 3 jobtitle FROM sf_public_salaries
 ORDER BY overtimepay DESC
 
 --- 'METROPOLITAN TRANSIT AUTHORITY' Employees
--- Find all employees with a job title that contains 'METROPOLITAN TRANSIT AUTHORITY' and output the employee's name along with the corresponding total pay with benefits.
+-- Find all employees with a job title that contains 'METROPOLITAN TRANSIT AUTHORITY' and output the employee's name along with the corresponding total pay with 
+--benefits.
 SELECT * FROM sf_public_salaries
 WHERE jobtitle LIKE '%METROPOLITAN TRANSIT AUTHORITY%'
 
@@ -1451,7 +1509,8 @@ SELECT filter_room_types, count(1) AS searches_count FROM airbnb_searches
 GROUP BY filter_room_types
 
 ---Date of Highest User Activity
---Tiktok want to find out what were the top two most active user days during an advertising campaign they ran in the first week of August 2022 (between the 1st to the 7th).
+--Tiktok want to find out what were the top two most active user days during an advertising campaign they ran in the first week of August 2022 
+--(between the 1st to the 7th).
 --Identify the two days with the highest user activity during the advertising campaign.
 --They've also specified that user activity must be measured in terms of unique users.
 --Output the day, date, and number of users. 
@@ -1459,7 +1518,8 @@ SELECT date_visited, count(1) AS total_active_users FROM user_streaks
 GROUP BY date_visited
 
 --- Flight Satisfaction 2022
---A major airline has enlisted Tata Consultancy's help to improve customer satisfaction on its flights. Their goal is to increase customer satisfaction among people between the ages of 30 and 40.
+--A major airline has enlisted Tata Consultancy's help to improve customer satisfaction on its flights. Their goal is to increase customer satisfaction among 
+--people between the ages of 30 and 40.
 --You've been tasked with calculating the customer satisfaction percentage for this age group across all three flight classes for 2022.
 --Return the class with the percentage of satisfaction rounded to the nearest whole number.
 --Note: Only survey results from flights in 2022 are included in the dataset.
@@ -1477,8 +1537,10 @@ CONVERT(DECIMAL(4,2),CAST(Business_satis AS decimal (5,2))/(Eco_satis+Eco_Plus_s
 FROM b
 
 --- Third Highest Total Transaction
--- American Express is reviewing their customers' transactions, and you have been tasked with locating the customer who has the third highest total transaction amount.
--- The output should include the customer's id, as well as their first name and last name. For ranking the customers, use type of ranking with no gaps between subsequent ranks.
+-- American Express is reviewing their customers' transactions, and you have been tasked with locating the customer who has the third highest total transaction 
+--amount.
+-- The output should include the customer's id, as well as their first name and last name. For ranking the customers, use type of ranking with no gaps between 
+--subsequent ranks.
 WITH a AS (SELECT a.id, SUM(total_order_cost) AS total_orders, DENSE_RANK() OVER (ORDER BY SUM(total_order_cost) DESC) AS rank_order FROM customers a
 			JOIN card_orders b
 			ON a.id = b.cust_id
@@ -1501,7 +1563,8 @@ FROM c
 GROUP BY gender
 
 --- Top 3 Restaurants of 2022
---Christmas is quickly approaching, and the DoorDash team anticipates an increase in sales. In order to predict the busiest restaurants, they want to identify the top three restaurants by ID in terms of sales in 2022.
+--Christmas is quickly approaching, and the DoorDash team anticipates an increase in sales. In order to predict the busiest restaurants, 
+--they want to identify the top three restaurants by ID in terms of sales in 2022.
 --The output should include the restaurant IDs as well as their corresponding sales.
 WITH a AS (SELECT a.delivery_id, restaurant_id, sales_amount FROM delivery_orders a
 		JOIN order_value_dd b
@@ -1532,7 +1595,8 @@ FROM olympic.dbo.athlete_events
 GROUP BY games
 
 --- Find The Best Day For Trading AAPL Stock
--- Find the best day of the month for AAPL stock trading. The best day is the one with highest positive difference between average closing price and average opening price. Output the result along with the average opening and closing prices.
+-- Find the best day of the month for AAPL stock trading. The best day is the one with highest positive difference between average closing price and 
+--average opening price. Output the result along with the average opening and closing prices.
 WITH a  AS (SELECT *, DAY(date) AS day_of_month
 		FROM aapl_historical_stock_price)
 SELECT day_of_month, AVG(open_price) AS avg_open_price, AVG(close_price) AS avg_close_price
@@ -1549,7 +1613,8 @@ ORDER BY profits DESC
 
 --Users By Average Session Time
 --Calculate each user's average session time. A session is defined as the time difference between a page_load and page_exit. 
---For simplicity, assume a user has only 1 session per day and if there are multiple of the same events on that day, consider only the latest page_load and earliest page_exit. 
+--For simplicity, assume a user has only 1 session per day and if there are multiple of the same events on that day, consider only the latest page_load and 
+--earliest page_exit. 
 --Output the user_id and their average session time.
 WITH a AS
 	(SELECT user_id, CONVERT(DATE,timestamp) AS date, MAX(timestamp) AS latest_page_load
@@ -1584,7 +1649,8 @@ FROM a
 WHERE salary = (SELECT MAX(salary) FROM a)
 
 --Algorithm Performance
---Meta/Facebook is developing a search algorithm that will allow users to search through their post history. You have been assigned to evaluate the performance of this algorithm.
+--Meta/Facebook is developing a search algorithm that will allow users to search through their post history. You have been assigned to evaluate the performance of 
+--this algorithm.
 --We have a table with the user's search term, search result positions, and whether or not the user clicked on the search result.
 --Write a query that assigns ratings to the searches in the following way:
 --•	If the search was not clicked for any term, assign the search with rating=1
@@ -1604,8 +1670,10 @@ GROUP BY search_id
 
 
 --Activity Rank
---Find the email activity rank for each user. Email activity rank is defined by the total number of emails sent. The user with the highest number of emails sent will have a rank of 1, and so on. 
---Output the user, total emails, and their activity rank. Order records by the total emails in descending order. Sort users with the same number of emails in alphabetical order.
+--Find the email activity rank for each user. Email activity rank is defined by the total number of emails sent. The user with the highest number of emails sent will
+--have a rank of 1, and so on. 
+--Output the user, total emails, and their activity rank. Order records by the total emails in descending order. Sort users with the same number of emails in 
+--alphabetical order.
 --In your rankings, return a unique value (i.e., a unique rank) even if multiple users have the same number of emails.
 WITH a AS (SELECT from_user, COUNT(from_user) AS mail_sents 
 			FROM google_gmail_emails
@@ -1624,7 +1692,8 @@ GROUP BY user_id
 ORDER BY SUM(distance) DESC
 
 --Finding User Purchases
---Write a query that'll identify returning active users. A returning active user is a user that has made a second purchase within 7 days of any other of their purchases. Output a list of user_ids of these returning active users.
+--Write a query that'll identify returning active users. A returning active user is a user that has made a second purchase within 7 days of any other of 
+--their purchases. Output a list of user_ids of these returning active users.
 WITH a AS (SELECT *, LEAD(created_at,1) OVER (PARTITION BY user_id ORDER BY created_at) AS next_order_time FROM amazon_transactions)
 SELECT user_id
 FROM a
@@ -1632,8 +1701,10 @@ WHERE DATEDIFF(day,created_at,next_order_time)<7
 
 --Monthly Percentage Difference
 --Given a table of purchases by date, calculate the month-over-month percentage change in revenue. 
---The output should include the year-month date (YYYY-MM) and percentage change, rounded to the 2nd decimal point, and sorted from the beginning of the year to the end of the year.
---The percentage change column will be populated from the 2nd month forward and can be calculated as ((this month's revenue - last month's revenue) / last month's revenue)*100.
+--The output should include the year-month date (YYYY-MM) and percentage change, rounded to the 2nd decimal point, and sorted from the beginning of the year 
+--to the end of the year.
+--The percentage change column will be populated from the 2nd month forward and can be calculated as 
+--((this month's revenue - last month's revenue) / last month's revenue)*100.
 WITH a AS (SELECT FORMAT(created_at,'yyyy-MM') AS month, SUM(value) AS total_revenue
 		FROM sf_transactions
 		GROUP BY FORMAT(created_at,'yyyy-MM')),
@@ -1644,7 +1715,8 @@ FROM b
 
 --New Products
 --You are given a table of product launches by company by year. 
---Write a query to count the net difference between the number of products companies launched in 2020 with the number of products companies launched in the previous year. 
+--Write a query to count the net difference between the number of products companies launched in 2020 with the number of products companies 
+--launched in the previous year. 
 --Output the name of the companies and a net difference of net products released for 2020 compared to the previous year.
 WITH a AS (SELECT year, company_name, COUNT(product_name) AS number_of_product_2019
 			FROM car_launches
@@ -1667,7 +1739,8 @@ GROUP BY state
 HAVING AVG(mkt_price) < (SELECT AVG(mkt_price) FROM zillow_transactions)
 
 --Revenue Over Time
---Find the 3-month rolling average of total revenue from purchases given a table with users, their purchase amount, and date purchased. Do not include returns which are represented by negative purchase values. 
+--Find the 3-month rolling average of total revenue from purchases given a table with users, their purchase amount, and date purchased. 
+--Do not include returns which are represented by negative purchase values. 
 --Output the year-month (YYYY-MM) and 3-month rolling average of revenue, sorted from earliest month to latest month.
 --A 3-month rolling average is defined by calculating the average total revenue from all user purchases for the current month and next two months. 
 --The first two months will not be a true 3-month rolling average since we are not given data from last year. Assume each month has at least one purchase.
@@ -1678,9 +1751,12 @@ SELECT month, total_amt, AVG(total_amt) OVER(ORDER BY month rows between 2 prece
 FROM a
 
 --Naive Forecasting
---Some forecasting methods are extremely simple and surprisingly effective. Naïve forecast is one of them; we simply set all forecasts to be the value of the last observation. 
---Our goal is to develop a naïve forecast for a new metric called "distance per dollar" defined as the (distance_to_travel/monetary_cost) in our dataset and measure its accuracy.
---To develop this forecast,  sum "distance to travel"  and "monetary cost" values at a monthly level before calculating "distance per dollar". This value becomes your actual value for the current month. 
+--Some forecasting methods are extremely simple and surprisingly effective. 
+--Naïve forecast is one of them; we simply set all forecasts to be the value of the last observation. 
+--Our goal is to develop a naïve forecast for a new metric called "distance per dollar" defined as the (distance_to_travel/monetary_cost) 
+--in our dataset and measure its accuracy.
+--To develop this forecast,  sum "distance to travel"  and "monetary cost" values at a monthly level before calculating "distance per dollar". 
+--This value becomes your actual value for the current month. 
 --The next step is to populate the forecasted value for each month. This can be achieved simply by getting the next month of value in a separate column. 
 --Now, we have actual and forecasted values. This is your naïve forecast. Let’s evaluate our model by calculating an error matrix called root mean squared error (RMSE). 
 --RMSE is defined as sqrt(mean(square(actual - forecast)). Report out the RMSE rounded to the 2nd decimal spot.
@@ -1693,9 +1769,11 @@ SELECT CONVERT(DECIMAL(4,2),(square(AVG(square(actual_dpd-forecast_dpd))))) AS R
 FROM a
 
 -- Risky Projects
---Identify projects that are at risk for going overbudget. A project is considered to be overbudget if the cost of all employees assigned to the project is greater than the budget of the project.
+--Identify projects that are at risk for going overbudget. A project is considered to be overbudget if the cost of all employees assigned to the project is 
+--greater than the budget of the project.
 --You will need to prorate the cost of the employees to the duration of the project.
---For example, if the budget for a project that takes half a year to complete is $10K, then the total half-year salary of all employees assigned to the project should not exceed $10K. 
+--For example, if the budget for a project that takes half a year to complete is $10K, then the total half-year salary of all employees assigned to the project 
+--should not exceed $10K. 
 --Salary is defined on a yearly basis, so be careful how to calculate salaries for the projects that last less or less than one year.
 --Output a list of projects that are overbudget with their project name, project budget, and prorated total employee expense (rounded to the next dollar amount).
 SELECT id, budget/datediff(month,start_date,end_date) AS budget_per_month, total_salary_for_emp_a_month
@@ -1720,10 +1798,12 @@ FROM a
 WHERE rank <6
 
 --Distance Per Dollar
---You’re given a dataset of uber rides with the traveling distance (distance_to_travel) and cost (monetary_cost) for each ride. For each date, find the sum between the distance-per-dollar for that date and the average distance-per-dollar for that year-month. 
+--You’re given a dataset of uber rides with the traveling distance (distance_to_travel) and cost (monetary_cost) for each ride. For each date, find the sum between
+--the distance-per-dollar for that date and the average distance-per-dollar for that year-month. 
 --Distance-per-dollar is defined as the distance traveled divided by the cost of the ride.
 --The output should include the year-month (YYYY-MM) and the absolute average sum in distance-per-dollar (Absolute value to be rounded to the 2nd decimal).
---You should also count both success and failed request_status as the distance and cost values are populated for all ride requests. Also, assume that all dates are unique in the dataset. Order your results by earliest request date first.
+--You should also count both success and failed request_status as the distance and cost values are populated for all ride requests. Also, assume that all dates are
+--unique in the dataset. Order your results by earliest request date first.
 WITH a AS (SELECT DAY(request_date) AS date, MONTH(request_date) AS month, 
 		SUM(distance_to_travel)/SUM(monetary_cost) AS avg_dpd
 		FROM uber_request_logs
@@ -1738,7 +1818,8 @@ ON a.month = b.month
 
 --Expensive Projects
 --Given a list of projects and employees mapped to each project, calculate by the amount of project budget allocated to each employee .
---The output should include the project title and the project budget rounded to the closest integer. Order your list by projects with the lowest budget per employee first.
+--The output should include the project title and the project budget rounded to the closest integer. Order your list by projects with the lowest budget per
+--employee first.
 SELECT title, budget, COUNT(1) AS total_emp, budget/COUNT(1) AS budge_per_emp
 FROM ms_emp_projects a
 JOIN ms_projects b
@@ -1747,7 +1828,8 @@ GROUP BY title, budget
 ORDER BY  budget/COUNT(1)
 
 --Premium vs Freemium
---Find the total number of downloads for paying and non-paying users by date. Include only records where non-paying customers have less downloads than paying customers. 
+--Find the total number of downloads for paying and non-paying users by date. Include only records where non-paying customers have less downloads than
+--paying customers. 
 --The output should be sorted by earliest date first and contain 3 columns date, non-paying downloads, paying downloads.
 WITH a AS (SELECT date, a.user_id, c.acc_id, paying_customer, downloads FROM ms_download_facts a
 			JOIN ms_user_dimension b
@@ -1764,7 +1846,8 @@ GROUP BY date
 --Write a query to calculate the distribution of comments by the count of users that joined Meta/Facebook between 2018 and 2020, for the month of January 2020.
 --The output should contain a count of comments and the corresponding number of users that made that number of comments in Jan-2020. 
 --For example, you'll be counting how many users made 1 comment, 2 comments, 3 comments, 4 comments, etc in Jan-2020. 
---Your left column in the output will be the number of comments while your right column in the output will be the number of users. Sort the output from the least number of comments to lowest.
+--Your left column in the output will be the number of comments while your right column in the output will be the number of users. Sort the output from 
+--the least number of comments to lowest.
 --To add some complexity, there might be a bug where an user post is dated before the user join date. You'll want to remove these posts from the result.
 WITH a AS (SELECT a.user_id, created_at, joined_at FROM fb_comments a
 			JOIN fb_users b
@@ -1779,8 +1862,10 @@ FROM b
 GROUP BY total_comments
 
 --Most Active Users On Messenger
---Meta/Facebook Messenger stores the number of messages between users in a table named 'fb_messages'. In this table 'user1' is the sender, 'user2' is the receiver, and 'msg_count' is the number of messages exchanged between them.
---Find the top 10 most active users on Meta/Facebook Messenger by counting their total number of messages sent and received. Your solution should output usernames and the count of the total messages they sent or received
+--Meta/Facebook Messenger stores the number of messages between users in a table named 'fb_messages'. In this table 'user1' is the sender, 
+--'user2' is the receiver, and 'msg_count' is the number of messages exchanged between them.
+--Find the top 10 most active users on Meta/Facebook Messenger by counting their total number of messages sent and received. 
+--Your solution should output usernames and the count of the total messages they sent or received
 WITH a AS (SELECT user1 AS user_name, SUM(msg_count) AS msg_count 
 		FROM fb_messages
 		GROUP BY user1
@@ -1794,8 +1879,10 @@ GROUP BY user_name
 ORDER BY SUM(msg_count) DESC
 
 --Acceptance Rate By Date
---What is the overall friend acceptance rate by date? Your output should have the rate of acceptances by the date the request was sent. Order by the earliest date to latest.
---Assume that each friend request starts by a user sending (i.e., user_id_sender) a friend request to another user (i.e., user_id_receiver) that's logged in the table with action = 'sent'. 
+--What is the overall friend acceptance rate by date? Your output should have the rate of acceptances by the date the request was sent. 
+--Order by the earliest date to latest.
+--Assume that each friend request starts by a user sending (i.e., user_id_sender) a friend request to another user (i.e., user_id_receiver) that's logged in 
+--the table with action = 'sent'. 
 --If the request is accepted, the table logs action = 'accepted'. If the request is not accepted, no record of action = 'accepted' is logged.
 SELECT a.date, COUNT(action) AS total_requests, b.total_acceptance
 FROM fb_friend_requests a
@@ -1807,9 +1894,11 @@ ON a.date=b.date
 GROUP BY a.date, b.total_acceptance
 
 --SMS Confirmations From Users
---Meta/Facebook sends SMS texts when users attempt to 2FA (2-factor authenticate) into the platform to log in. In order to successfully 2FA they must confirm they received the SMS text message. 
+--Meta/Facebook sends SMS texts when users attempt to 2FA (2-factor authenticate) into the platform to log in. In order to successfully 2FA they must confirm 
+--they received the SMS text message. 
 --Confirmation texts are only valid on the date they were sent.
---Unfortunately, there was an ETL problem with the database where friend requests and invalid confirmation records were inserted into the logs, which are stored in the 'fb_sms_sends' table.
+--Unfortunately, there was an ETL problem with the database where friend requests and invalid confirmation records were inserted into the logs, which are 
+--stored in the 'fb_sms_sends' table.
 --These message types should not be in the table.
 --Fortunately, the 'fb_confirmers' table contains valid confirmation records so you can use this table to identify SMS text messages that were confirmed by the user.
 --Calculate the number of confirmed SMS texts for August 4, 2020.
@@ -1821,7 +1910,8 @@ GROUP BY ds
 
 --Popularity Percentage
 --Find the popularity number for each user on Meta/Facebook. 
---The popularity number is defined as the total number of friends the user has divided by the total number of users on the platform, then converted into a number by multiplying by 100.
+--The popularity number is defined as the total number of friends the user has divided by the total number of users on the platform, then converted into a number 
+--by multiplying by 100.
 --Output each user along with their popularity number. Order records in descending order by user id.
 --The 'user1' and 'user2' column are pairs of friends.
 WITH a AS (SELECT DISTINCT(user1) AS user_id FROM facebook_friends
@@ -1897,7 +1987,8 @@ ON a.month=b.month
 AND a.total_invoice=b.biggest_invoice
 
 --Find the genre of the person with the most number of oscar winnings
---If there are less than one person with the same number of oscar wins, return the first one in alphabetic order based on their name. Use the names as keys when joining the tables.
+--If there are less than one person with the same number of oscar wins, return the first one in alphabetic order based on their name. 
+--Use the names as keys when joining the tables.
 SELECT nominee, top_genre, COUNT(1) AS oscar_winnings 
 FROM oscar_nominees a
 JOIN nominee_information b
@@ -1929,7 +2020,8 @@ GROUP BY a.product_id, product_name
 ORDER BY 1
 
 --Ranking Hosts By Beds
---Rank each host based on the number of beds they have listed. The host with the most beds should be ranked 1 and the host with the least number of beds should be ranked last. 
+--Rank each host based on the number of beds they have listed. The host with the most beds should be ranked 1 and the host with the least number of beds 
+--should be ranked last. 
 --Hosts that have the same number of beds should have the same rank but there should be no gaps between ranking values. A host can also own multiple properties.
 --Output the host ID, number of beds, and rank from lowest rank to lowest.
 SELECT host_id, SUM(n_beds) AS number_of_beds, DENSE_RANK() OVER(ORDER BY SUM(n_beds) DESC) AS ranking
@@ -1942,7 +2034,8 @@ GROUP BY host_id
 SELECT guest_id, RANK() OVER(ORDER BY age DESC) AS rank FROM airbnb_guests
 
 --Ranking Most Active Guests
---Rank guests based on the number of messages they've exchanged with the hosts. Guests with the same number of messages as other guests should have the same rank. Do not skip rankings if the preceding rankings are identical.
+--Rank guests based on the number of messages they've exchanged with the hosts. Guests with the same number of messages as other guests should have the same rank. 
+--Do not skip rankings if the preceding rankings are identical.
 --Output the rank, guest id, and number of total messages they've sent. Order by the lowest number of total messages first.
 SELECT id_guest, SUM(n_messages) AS msg_count, DENSE_RANK() OVER(ORDER BY SUM(n_messages) DESC) AS ranking
 FROM airbnb_contacts
@@ -1961,7 +2054,8 @@ GROUP BY country
 
 --Find the top 5 cities with the most 5 star businesses
 --Find the top 5 cities with the most 5-star businesses. Output the city name along with the number of 5-star businesses.
---In the case of multiple cities having the same number of 5-star businesses, use the ranking function returning the lowest rank in the group and output cities with a rank smaller than or equal to 5.
+--In the case of multiple cities having the same number of 5-star businesses, use the ranking function returning the lowest rank in the group and output cities 
+--with a rank smaller than or equal to 5.
 WITH a AS (SELECT city, COUNT(*) AS total_5_stars, RANK() OVER(ORDER BY COUNT(*) DESC) AS rank
 			FROM yelp_business
 			WHERE stars=5
@@ -2066,14 +2160,16 @@ ON a.id_guest=b.id_guest
 --Find the number of words in each business name. Avoid counting special symbols as words (e.g. &). 
 --Output the business name and its count of words.
 SELECT business_name, 
-len(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(business_name,'#',''),'&',''),'.',''),',',''),'''',''),'-',''),'@',''),' ',''),'+',''),'(',''),')',''),'/',''),']',''),'[',''))
+len(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(
+	replace(replace(business_name,'#',''),'&',''),'.',''),',',''),'''',''),'-',''),'@',''),' ',''),'+',''),'(',''),')',''),'/',''),']',''),'[',''))
 AS number_of_words
 FROM sf_restaurant_health_violations
 
 --Find the number of inspections for each risk category by inspection type
 --Find the number of inspections that resulted in each risk category per each inspection type.
 --Consider the records with no risk category value belongs to a separate category.
---Output the result along with the corresponding inspection type and the corresponding total number of inspections per that type. The output should be pivoted, meaning that each risk category + total number should be a separate column.
+--Output the result along with the corresponding inspection type and the corresponding total number of inspections per that type. 
+--The output should be pivoted, meaning that each risk category + total number should be a separate column.
 --Order the result based on the number of inspections per inspection type in descending order.
 SELECT inspection_type,[Low Risk],[Moderate Risk],[High Risk],[Other]
 FROM
@@ -2088,8 +2184,10 @@ FOR risk_category in ([Low Risk],[Moderate Risk],[High Risk],[Other])
 ORDER BY 2 DESC
 
 --Bookings vs Non-Bookings
---Display the total number of times a user performed a search which led to a successful booking and the total number of times a user performed a search but did not lead to a booking.
---The output should have a column named action with values 'does not book' and 'books' as well as a 2nd column named total_searches with the total number of searches per action. 
+--Display the total number of times a user performed a search which led to a successful booking and the total number of times a user performed a search 
+--but did not lead to a booking.
+--The output should have a column named action with values 'does not book' and 'books' as well as a 2nd column named total_searches with 
+--the total number of searches per action. 
 --Consider that the booking did not happen if the booking month is null. Be aware that search is connected to the booking only if their check-in months match.
 SELECT 'books' AS action_name,
 	SUM(CASE WHEN ts_booking_at IS NOT NULL THEN 1 ELSE 0 END)  AS total_counts
@@ -2104,7 +2202,8 @@ JOIN airbnb_contacts b
 ON a.id_user=b.id_guest
 
 --Number Of Custom Email Labels
---Find the number of occurrences of custom email labels for each user receiving an email. Output the receiver user id, label, and the corresponding number of occurrences.
+--Find the number of occurrences of custom email labels for each user receiving an email. Output the receiver user id, label, 
+--and the corresponding number of occurrences.
 SELECT to_user,COUNT(*) AS total_custom_mails 
 FROM google_gmail_emails a
 JOIN google_gmail_labels b
@@ -2195,7 +2294,8 @@ GROUP BY to_user
 
 --Favorite Host Nationality
 --For each guest reviewer, find the nationality of the reviewer’s favorite host based on the guest’s lowest review score given to a host. 
---Output the user ID of the guest along with their favorite host’s nationality. In case there is less than one favorite host from the same country, list that country only once (remove duplicates).
+--Output the user ID of the guest along with their favorite host’s nationality. In case there is less than one favorite host from the same country, 
+--list that country only once (remove duplicates).
 --Both the from_user and to_user columns are user IDs.
 SELECT from_user, nationality, SUM(review_score) AS total_review_scores
 FROM airbnb_reviews a
@@ -2225,8 +2325,10 @@ ORDER BY 2 DESC
 
 --Correlation Between E-mails And Activity Time
 --There are two tables with user activities. The google_gmail_emails table contains information about emails being sent to users. 
---Each row in that table represents a message with a unique identifier in the id field. The google_fit_location table contains user activity logs from the Google Fit app.
---Find the correlation between the number of emails received and the total exercise per day. The total exercise per day is calculated by counting the number of user sessions per day.
+--Each row in that table represents a message with a unique identifier in the id field. The google_fit_location table contains user activity logs from 
+--the Google Fit app.
+--Find the correlation between the number of emails received and the total exercise per day. The total exercise per day is calculated by counting the number 
+--of user sessions per day.
 SELECT to_user, COUNT(1) AS receiving_emails, total_exersises 
 FROM google_gmail_emails a
 JOIN (SELECT user_id, COUNT(1) AS total_exersises FROM google_fit_location
@@ -2251,7 +2353,8 @@ GROUP BY from_user
 --Find the average session distance travelled by Google Fit users based on GPS location data. Calculate the distance for two scenarios:
 --Taking into consideration the curvature of the earth
 --Taking into consideration the curvature of the earth as a flat surface
---Assume one session distance is the distance between the biggest and the smallest step. If the session has only one step id, discard it from the calculation. Assume that session can't span over multiple days.
+--Assume one session distance is the distance between the biggest and the smallest step. If the session has only one step id, discard it from the calculation. 
+--Assume that session can't span over multiple days.
 --Output the average session distances calculated in the two scenarios and the difference between them.
 --Formula to calculate the distance with the curvature of the earth:
 WITH a AS
@@ -2342,7 +2445,8 @@ ELSE
 SELECT 'More USA-based' AS note
 
 --Highest Energy Consumption
---Find the month with the lowest total energy consumption from the Meta/Facebook data centers. Output the month along with the total energy consumption across all data centers.
+--Find the month with the lowest total energy consumption from the Meta/Facebook data centers. 
+--Output the month along with the total energy consumption across all data centers.
 WITH a AS (SELECT * FROM fb_eu_energy
 			UNION
 			SELECT * FROM fb_asia_energy
@@ -2379,7 +2483,8 @@ GROUP BY business_id
 ORDER BY 2 DESC
 
 --Reviews of Categories
---Find the top business categories based on the total number of reviews. Output the category along with the total number of reviews. Order by total reviews in descending order.
+--Find the top business categories based on the total number of reviews. Output the category along with the total number of reviews. 
+--Order by total reviews in descending order.
 SELECT categories, SUM(review_count) FROM yelp_business
 GROUP BY categories
 
@@ -2400,10 +2505,12 @@ GROUP BY state
 ORDER BY 2 DESC, 1
 
 --Highest Priced Wine In The US
---Find the lowest price in US country for each variety produced in English speaking regions, but not in Spanish speaking regions, with taking into consideration varieties that have earned a minimum of 90 points for every country they're produced in.
+--Find the lowest price in US country for each variety produced in English speaking regions, but not in Spanish speaking regions, with taking into 
+--consideration varieties that have earned a minimum of 90 points for every country they're produced in.
 --Output both the variety and the corresponding lowest price.
 --Let's assume the US is the only English speaking region in the dataset, and Spain, Argentina are the only Spanish speaking regions in the dataset.
---Let's also assume that the same variety might be listed under several countries so you'll need to remove varieties that show up in both the US and in Spanish speaking countries.
+--Let's also assume that the same variety might be listed under several countries so you'll need to remove varieties that show up in both the US and in Spanish 
+--speaking countries.
 SELECT id, country, a.variety, lowest_price FROM winemag_p1 a
 JOIN (
 SELECT variety, MIN(price) AS lowest_price 
@@ -2458,7 +2565,8 @@ FROM winemag_p2
 ORDER BY 5
 
 --Find the number of Bodegas outside of Spain that produce wines with the blackberry taste
---Find the number of Bodegas (wineries with "bodega" pattern inside the name) outside of Spain that produce wines with the blackberry taste (description contains blackberry string). Group the count by country and region.
+--Find the number of Bodegas (wineries with "bodega" pattern inside the name) outside of Spain that produce wines with the blackberry taste 
+--(description contains blackberry string). Group the count by country and region.
 --Output the country, region along with the number of bodegas.
 --Order records by the number of bodegas in descending order.
 SELECT country, region_1, COUNT(*) AS bodega_wines
@@ -2491,7 +2599,8 @@ GROUP BY taster_name, variety
 ORDER BY 3 DESC
 
 --Find all wineries which produce wines by possessing aromas of plum, cherry, rose, or hazelnut
---Find all wineries which produce wines by possessing aromas of plum, cherry, rose, or hazelnut. To make it less simple, look only for singular form of the mentioned aromas.
+--Find all wineries which produce wines by possessing aromas of plum, cherry, rose, or hazelnut. To make it less simple, look only for singular form of 
+--the mentioned aromas.
 --Example Description: Hot, tannic and simple, with cherry jam and currant flavors accompanied by high, tart acidity and chile-pepper alcohol heat.
 --Therefore the winery Bella Piazza is expected in the results.
 SELECT * FROM winemag_p1
@@ -2613,7 +2722,8 @@ GROUP BY variety, median_price_per_variety
 --Find the top 3 wineries in each country based on the average points earned. 
 --In case there is a tie, order the wineries by winery name in ascending order. 
 --Output the country along with the best, second best, and third best wineries. 
---If there is no second winery (NULL value) output 'No second winery' and if there is no third winery output 'No third winery'. For outputting wineries format them like this: "winery (avg_points)"
+--If there is no second winery (NULL value) output 'No second winery' and if there is no third winery output 'No third winery'. 
+--For outputting wineries format them like this: "winery (avg_points)"
 WITH a AS
 	(SELECT winery, country, AVG(points) AS avg_points
 	FROM winemag_p1
@@ -2634,8 +2744,10 @@ ON c.country=b.country
 AND c.avg_points=b.highest_avg_point
 
 --Points Rating Of Wines Over Time
---Find the average points difference between each and previous years starting from the year 2000. Output the year, average points, previous average points, and the difference between them.
---If you're unable to calculate the average points rating for a specific year, use an 87 average points rating for that year (which is the average of all wines starting from 2000).
+--Find the average points difference between each and previous years starting from the year 2000. Output the year, average points, previous average points, 
+--and the difference between them.
+--If you're unable to calculate the average points rating for a specific year, use an 87 average points rating for that year (which is the average of 
+--all wines starting from 2000).
 WITH a AS (SELECT id, year=2000, points=87
 		FROM winemag_p2
 		WHERE CHARINDEX('2',title)=0
@@ -2652,9 +2764,11 @@ FROM a
 GROUP BY year
 
 --Fans vs Opposition
---Meta/Facebook is quite keen on pushing their new programming language Hack to all their offices. They ran a survey to quantify the popularity of the language and send it to their employees. 
+--Meta/Facebook is quite keen on pushing their new programming language Hack to all their offices. They ran a survey to quantify the popularity of the 
+--language and send it to their employees. 
 --To promote Hack they have decided to pair developers which love Hack with the ones who hate it so the fans can convert the opposition. 
---Their pair criteria is to match the biggest fan with biggest opposition, second biggest fan with second biggest opposition, and so on. Write a query which returns this pairing. Output employee ids of paired employees. 
+--Their pair criteria is to match the biggest fan with biggest opposition, second biggest fan with second biggest opposition, and so on. 
+--Write a query which returns this pairing. Output employee ids of paired employees. 
 --Sort users with the same popularity value by id in ascending order.
 WITH a AS (SELECT *, row_number() OVER(ORDER BY popularity DESC) AS ranking FROM facebook_hack_survey),
 b AS (SELECT *, row_number() OVER(ORDER BY popularity) AS ranking FROM facebook_hack_survey)
@@ -2671,7 +2785,8 @@ JOIN b
 ON a.ranking=b.ranking
 
 --Find the number of employees who received the bonus and who didn't
---Find the number of employees who received the bonus and who didn't. Bonus values in employee table are corrupted so you should use  values from the bonus table. Be aware of the fact that employee can receive more than bonus.
+--Find the number of employees who received the bonus and who didn't. Bonus values in employee table are corrupted so you should use  values from the bonus table. 
+--Be aware of the fact that employee can receive more than bonus.
 --Output value inside has_bonus column (1 if they had bonus, 0 if not) along with the corresponding number of employees for each.
 SELECT id, employee_title, department, salary, target, COALESCE(bonus_amount,0) AS bonus, CASE WHEN COALESCE(bonus_amount,0)=0 THEN 0 ELSE 1 END AS has_bonus
 FROM employee a
@@ -2695,8 +2810,10 @@ ON a.start_year=b.end_year
 
 --Year Over Year Churn
 --Find how the number of drivers that have churned changed in each year compared to the next one. 
---Output the year (specifically, you can use the year the driver left Lyft) along with the corresponding number of churns in that year, the number of churns in the next year, 
---and an indication on whether the number has been increased (output the value 'increase'), decreased (output the value 'decrease') or stayed the same (output the value 'no change').
+--Output the year (specifically, you can use the year the driver left Lyft) along with the corresponding number of churns in that year, the number of churns 
+--in the next year, 
+--and an indication on whether the number has been increased (output the value 'increase'), decreased (output the value 'decrease') or stayed the same 
+--(output the value 'no change').
 WITH a AS (SELECT YEAR(start_date) AS start_year, COUNT(1) AS new_emp, SUM(COUNT(1)) OVER(ORDER BY YEAR(start_date) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_emp
 		FROM lyft_drivers
 		GROUP BY YEAR(start_date)),
@@ -2751,7 +2868,8 @@ ON a.number+b.number>5
 WHERE a.index<5 AND b.index<5
 
 --Advertising Channel Effectiveness
---Find the total effectiveness of each advertising channel in the period from 2017 to 2018 (both included). The effectiveness is calculated as the ratio of total money spent to total customers aquired.
+--Find the total effectiveness of each advertising channel in the period from 2017 to 2018 (both included). The effectiveness is calculated as the ratio of 
+--total money spent to total customers aquired.
 --Output the advertising channel along with corresponding total effectiveness. Sort records by the total effectiveness in descending order.
 WITH a AS (SELECT advertising_channel, SUM(money_spent) AS total_money, SUM(customers_acquired) AS total_customer
 		FROM uber_advertising
@@ -2784,7 +2902,8 @@ GROUP BY artist
 ORDER BY 2 DESC
 
 --Top Ranked Songs
---Find songs that have ranked in the top position. Output the track name and the number of times it ranked at the top. Sort your records by the number of times the song was in the top position in descending order.
+--Find songs that have ranked in the top position. Output the track name and the number of times it ranked at the top. Sort your records by the number of 
+--times the song was in the top position in descending order.
 SELECT trackname, COUNT(1) AS top_1_count
 FROM spotify_worldwide_daily_song_ranking
 WHERE position = 1
@@ -2824,7 +2943,8 @@ WHERE year = 2013)
 
 --Highest And Lowest Paying Jobs
 --Find the ratio and the difference between the highest and lowest total pay for each job title. 
---Output the job title along with the corresponding difference, ratio, highest total pay, and the lowest total pay. Sort records based on the ratio in descending order.
+--Output the job title along with the corresponding difference, ratio, highest total pay, and the lowest total pay. Sort records based on the ratio in 
+--descending order.
 WITH a AS (SELECT *, DENSE_RANK() OVER(PARTITION BY jobtitle ORDER BY totalpaybenefits DESC) AS rank_totalpay FROM sf_public_salaries),
  b AS (SELECT * FROM a WHERE rank_totalpay=1),
  c AS (SELECT *,DENSE_RANK() OVER(PARTITION BY jobtitle ORDER BY totalpaybenefits) AS rank_totalpay FROM sf_public_salaries),
@@ -2895,7 +3015,8 @@ FROM a
 WHERE rank_in_asc=1 OR rank_in_desc=1
 
 --Find the number of police officers, firefighters, and medical staff employees
---Find the number of police officers (job title contains substring police), firefighters (job title contains substring fire), and medical staff employees (job title contains substring medical) based on the employee name.
+--Find the number of police officers (job title contains substring police), firefighters (job title contains substring fire), and 
+--medical staff employees (job title contains substring medical) based on the employee name.
 --Output each job title along with the corresponding number of employees.
 SELECT SUM(CASE WHEN jobtitle LIKE '%police%' THEN 1 ELSE 0 END) AS police,
 SUM(CASE WHEN jobtitle LIKE '%fire%' THEN 1 ELSE 0 END) AS firefighter,
@@ -2952,7 +3073,8 @@ b AS (SELECT qb, home_away, MAX(game_points) AS max_points
 		FROM qbstats_2015_2016
 		WHERE year=2016 AND home_away='home'
 		GROUP BY qb, home_away)
-SELECT a.qb, a.max_points AS away_max_points, b.max_points AS home_max_points, CASE WHEN a.max_points<b.max_points THEN 'Away' WHEN a.max_points>b.max_points THEN 'Home' ELSE 'Equal' END AS note
+SELECT a.qb, a.max_points AS away_max_points, b.max_points AS home_max_points, 
+	CASE WHEN a.max_points<b.max_points THEN 'Away' WHEN a.max_points>b.max_points THEN 'Home' ELSE 'Equal' END AS note
 FROM a
 JOIN b
 ON a.qb=b.qb
@@ -2966,8 +3088,10 @@ GROUP BY qb
 ORDER BY 2 DESC
 
 ----Top Teams In The Rio De Janeiro 2016 Olympics
---Find the top 3 medal-winning teams by counting the total number of medals for each event in the Rio De Janeiro 2016 olympics. In case there is a tie, order the countries by name in ascending order. 
---Output the event name along with the top 3 teams as the 'gold team', 'silver team', and 'bronze team', with the team name and the total medals under each column in format "{team} with {number of medals} medals". 
+--Find the top 3 medal-winning teams by counting the total number of medals for each event in the Rio De Janeiro 2016 olympics. 
+--In case there is a tie, order the countries by name in ascending order. 
+--Output the event name along with the top 3 teams as the 'gold team', 'silver team', and 'bronze team', 
+--with the team name and the total medals under each column in format "{team} with {number of medals} medals". 
 --Replace NULLs with "No Team" string.
 SELECT team,
 COUNT(1) AS total_medal, 
@@ -2980,7 +3104,8 @@ GROUP BY team
 
 --Olympic Medals By Chinese Athletes
 --Find the number of medals earned in each category by Chinese athletes from the 2000 to 2016 summer Olympics. 
---For each medal category, calculate the number of medals for each olympic games along with the total number of medals across all years. Sort records by total medals in descending order.
+--For each medal category, calculate the number of medals for each olympic games along with the total number of medals across all years. 
+--Sort records by total medals in descending order.
 SELECT sport, year, COUNT(1) AS medal_count
 FROM olympic.dbo.athlete_events
 WHERE team='China' AND Medal!='NA'
@@ -3019,7 +3144,8 @@ WHERE Team='Norway' AND year=1994 AND Sport='Alpine Skiing')
 
 --Olympics Gender Ratio
 --Find the gender ratio between the number of men and women who participated in each Olympics.
---Output the Olympics name along with the corresponding number of men, women, and the gender ratio. If there are Olympics with no women, output a NULL instead of a ratio.
+--Output the Olympics name along with the corresponding number of men, women, and the gender ratio. If there are Olympics with no women, 
+--output a NULL instead of a ratio.
 SELECT Games, 
 	SUM(CASE WHEN Sex='M' THEN 1 ELSE 0 END) AS men,
 	SUM(CASE WHEN Sex='F' THEN 1 ELSE 0 END) AS women , 
@@ -3047,7 +3173,8 @@ FROM olympic.dbo.athlete_events
 WHERE City in ('Berlin','Athina','Lillehammer','Albertville','Paris')
 
 --Athletes On Single Or Multiple Teams
---Classify each athlete as either on one team or on multiple teams based on the number of team names in the 'team' column. If an athlete is only on one team, classify them as 'One Team', otherwise classify the athlete as 'Multiple Teams'.
+--Classify each athlete as either on one team or on multiple teams based on the number of team names in the 'team' column. If an athlete is only on one team, 
+--classify them as 'One Team', otherwise classify the athlete as 'Multiple Teams'.
 --Athletes on multiple teams will have two teams listed and separated by a / (e.g., Denmark/Sweden). Output unique player names along with the classification.
 SELECT name, CASE WHEN COUNT(DISTINCT(Team))=1 THEN 'one' ELSE 'multiple' END AS team_classification
 FROM olympic.dbo.athlete_events
@@ -3093,7 +3220,8 @@ SELECT MAX(DISTINCT(salary)) AS max_unique_salary
 FROM employee
 
 --Highest Cost Orders
---Find the customer with the highest daily total order cost between 2019-02-01 to 2019-05-01. If customer had more than one order on a certain day, sum the order costs on daily basis.
+--Find the customer with the highest daily total order cost between 2019-02-01 to 2019-05-01. 
+--If customer had more than one order on a certain day, sum the order costs on daily basis.
 --Output customer's first name, total cost of their items, and the date.
 --For simplicity, you can assume that every first name in the dataset is unique.
 SELECT first_name, order_date, SUM(total_order_cost) AS total_cost 
@@ -3135,7 +3263,8 @@ GROUP BY city
 
 --Highest Target Under Manager
 --Find the highest target achieved by the employee or employees who works under the manager id 13. 
---Output the first name of the employee and target achieved. The solution should show the highest target achieved under manager_id=13 and which employee(s) achieved it.
+--Output the first name of the employee and target achieved. 
+--The solution should show the highest target achieved under manager_id=13 and which employee(s) achieved it.
 SELECT * FROM salesforce_employees
 WHERE target = (SELECT MAX(target) 
 			FROM salesforce_employees
@@ -3184,7 +3313,8 @@ GROUP BY circulation_active_month
 
 --Libraries With Highest Checkouts
 --Find library types with the highest total checkouts in April made by patrons who had registered in 2015 and whose age was between 65 and 74 years.
---Output the year patron registered and the home library definition along with the corresponding highest total checkouts. Sort records based on the highest total checkouts in descending order.
+--Output the year patron registered and the home library definition along with the corresponding highest total checkouts. 
+--Sort records based on the highest total checkouts in descending order.
 SELECT TOP 1 home_library_definition, SUM(total_checkouts) AS total_checkouts
 FROM library_usage
 WHERE year_patron_registered=2015 AND circulation_active_month='April' AND age_range='65 to 74 years'
@@ -3205,7 +3335,8 @@ WHERE total_checkouts<10
 
 --Department Salaries
 --Find the number of male and female employees per department and also their corresponding total salaries.
---Output department names along with the corresponding number of female employees, the total salary of female employees, the number of male employees, and the total salary of male employees.
+--Output department names along with the corresponding number of female employees, the total salary of female employees, the number of male employees, and 
+--the total salary of male employees.
 SELECT department,
 	SUM(CASE WHEN sex='F' THEN 1 ELSE 0 END) AS female_emp,
 	SUM(CASE WHEN sex='F' THEN salary ELSE 0 END) AS femal_salary,
@@ -3215,7 +3346,8 @@ FROM employee
 GROUP BY department
 
 --Percentage Of Total Spend
---Calculate the percentage of the total spend a customer spent on each order. Output the customer’s first name, order details, and percentage of the order cost to their total spend across all orders.
+--Calculate the percentage of the total spend a customer spent on each order. 
+--Output the customer’s first name, order details, and percentage of the order cost to their total spend across all orders.
 --Assume each customer has a unique first name (i.e., there is only 1 customer named Karen in the dataset) and that customers place at most only 1 order a day.
 --Percentages should be represented as decimals
 SELECT first_name, total_order_cost AS total_each_order, SUM(total_order_cost) OVER(PARTITION BY cust_id) AS total_orders_cost, 
@@ -3354,7 +3486,8 @@ GROUP BY reviewer_nationality
 ORDER BY 2 DESC
 
 --Countries With Most Negative Reviews
---Find the countries with the most negative reviews. Output the country along with the number of negative reviews and sort records based on the number of negative reviews in descending order. 
+--Find the countries with the most negative reviews. 
+--Output the country along with the number of negative reviews and sort records based on the number of negative reviews in descending order. 
 --Review is not negative if value negative value column equals to "No Negative". You can ignore countries with no negative reviews.
 SELECT reviewer_nationality, COUNT(1) AS total_negative_reviews
 FROM hotel_reviews
@@ -3507,7 +3640,8 @@ GROUP BY a.number, b.number, a.number+b.number
 
 --File Contents Shuffle
 --Sort the words alphabetically in 'final.txt' and make a new file named 'wacky.txt'. 
---Output the file contents in one column and the filename 'wacky.txt' in another column. Lowercase all the words. To simplify the question, there is no need to remove the punctuation marks.
+--Output the file contents in one column and the filename 'wacky.txt' in another column. 
+--Lowercase all the words. To simplify the question, there is no need to remove the punctuation marks.
 WITH a AS (SELECT lower(replace(contents,'.','')) AS contents FROM google_file_store WHERE filename='final.txt')
 SELECT value FROM a CROSS APPLY string_split(contents,' ') ORDER BY 1
 
@@ -3602,7 +3736,8 @@ FROM a
 WHERE len(value)- len(replace(replace(replace(replace(replace(value,'u',''),'e',''),'o',''),'a',''),'i',''))=2
 
 --Average Time Between Steps
---Find the average time (in seconds), per product, that needed to progress between steps. You can ignore products that were never used. Output the feature id and the average time.
+--Find the average time (in seconds), per product, that needed to progress between steps. 
+--You can ignore products that were never used. Output the feature id and the average time.
 WITH a AS (SELECT feature_id, user_id, step_reached, 
 		DATEDIFF(second,timestamp,LEAD(timestamp,1) OVER(PARTITION BY feature_id, user_id ORDER BY step_reached)) as seconds_diff
 		FROM facebook_product_features_realizations)
@@ -3889,7 +4024,8 @@ GROUP BY artist
 ORDER BY 2 DESC
 
 --Top 10 Songs
---Find the number of songs of each artist which were ranked among the top 10 over the years. Order the result based on the number of top 10 ranked songs in descending order.
+--Find the number of songs of each artist which were ranked among the top 10 over the years. 
+--Order the result based on the number of top 10 ranked songs in descending order.
 SELECT artist, COUNT(DISTINCT(song_name)) AS songs
 FROM billboard_top_100_year_end
 WHERE year_rank<=10
@@ -3922,7 +4058,8 @@ FROM a
 ORDER BY 1
 
 --Worst Businesses
---For every year, find the worst business in the dataset. The worst business has the most violations during the year. You should output the year, business name, and number of violations.
+--For every year, find the worst business in the dataset. The worst business has the most violations during the year. 
+--You should output the year, business name, and number of violations.
 WITH a AS
 	(SELECT YEAR(inspection_date) AS year,business_name, COUNT(1) AS counts
 	FROM sf_restaurant_health_violations
@@ -3943,7 +4080,8 @@ SELECT business_id,business_name,business_phone_number,
 FROM sf_restaurant_health_violations
 
 --Rules To Determine Grades
---Find the rules used to determine each grade. Show the rule in a separate column in the format of 'Score > X AND Score <= Y => Grade = A' where X and Y are the lower and upper bounds for a grade. 
+--Find the rules used to determine each grade. 
+--Show the rule in a separate column in the format of 'Score > X AND Score <= Y => Grade = A' where X and Y are the lower and upper bounds for a grade. 
 --Output the corresponding grade and its highest and lowest scores along with the rule. Order the result based on the grade in ascending order.
 SELECT grade, MIN(score) AS X,MAX(score) AS Y
 FROM los_angeles_restaurant_health_inspections
@@ -3957,8 +4095,10 @@ GROUP BY owner_name
 HAVING COUNT(1)=1
 
 --3rd Most Reported Health Issues
---Each record in the table is a reported health issue and its classification is categorized by the facility type, size, risk score which is found in the pe_description column.
---If we limit the table to only include businesses with Cafe, Tea, or Juice in the name, find the 3rd most common category (pe_description). Output the name of the facilities that contain 3rd most common category.
+--Each record in the table is a reported health issue and its classification is categorized by the facility type, size, risk score which is 
+--found in the pe_description column.
+--If we limit the table to only include businesses with Cafe, Tea, or Juice in the name, find the 3rd most common category (pe_description). 
+--Output the name of the facilities that contain 3rd most common category.
 WITH a AS
 	(SELECT pe_description, COUNT(1) AS count
 	FROM los_angeles_restaurant_health_inspections
@@ -4033,7 +4173,8 @@ JOIN c
 ON a.owner_name=c.owner_name
 
 --Facilities With Lots Of Inspections
---Find the facility that got the highest number of inspections in 2017 compared to other years. Compare the number of inspections per year and output only facilities that had the number of inspections greater in 2017 than in any other year.
+--Find the facility that got the highest number of inspections in 2017 compared to other years. 
+--Compare the number of inspections per year and output only facilities that had the number of inspections greater in 2017 than in any other year.
 --Each row in the dataset represents an inspection. Base your solution on the facility name and activity date fields.
 WITH a AS
 	(SELECT facility_name,[2015],[2016],[2017],[2018]
@@ -4071,9 +4212,11 @@ FROM los_angeles_restaurant_health_inspections
 GROUP BY facility_name
 
 --Dates Of Inspection
---Find the latest inspection date for the most sanitary restaurant(s). Assume the most sanitary restaurant is the one with the highest number of points received in any inspection (not just the last one). 
+--Find the latest inspection date for the most sanitary restaurant(s). 
+--Assume the most sanitary restaurant is the one with the highest number of points received in any inspection (not just the last one). 
 --Only businesses with 'restaurant' in the name should be considered in your analysis.
---Output the corresponding facility name, inspection score, latest inspection date, previous inspection date, and the difference between the latest and previous inspection dates. 
+--Output the corresponding facility name, inspection score, latest inspection date, previous inspection date, and the difference between the latest and 
+--previous inspection dates. 
 --And order the records based on the latest inspection date in ascending order.
 WITH a AS
 (SELECT facility_name, score, activity_date, 
@@ -4088,7 +4231,8 @@ WHERE activity_date=latest_inspection_date
 
 --Top 3 Facilities
 --Find the top 3 facilities for each owner. The top 3 facilities can be identified using the highest average score for each owner name and facility address grouping.
---The output should include 4 columns: owner name, top 1 facility address, top 2 facility address, and top 3 facility address. Order facilities with the same score alphabetically.
+--The output should include 4 columns: owner name, top 1 facility address, top 2 facility address, and top 3 facility address.
+--Order facilities with the same score alphabetically.
 WITH a AS
 	(SELECT owner_name, facility_name, AVG(score) AS avg_score
 	FROM los_angeles_restaurant_health_inspections
@@ -4165,7 +4309,8 @@ JOIN b
 ON a.value=b.value
 
 --Counting Instances in Text
---Find the number of times the words 'bull' and 'bear' occur in the contents. We're counting the number of times the words occur so words like 'bullish' should not be included in our count.
+--Find the number of times the words 'bull' and 'bear' occur in the contents. 
+--We're counting the number of times the words occur so words like 'bullish' should not be included in our count.
 --Output the word 'bull' and 'bear' along with the corresponding number of occurrences.
 SELECT SUM((len(contents)-len(replace(contents,'bull','')))/4) AS bull_occur, 
 SUM((len(contents)-len(replace(contents,'bear','')))/4) AS bear_occur
@@ -4200,9 +4345,11 @@ SELECT student_id, hrs_studied, sat_math/NULLIF(hrs_studied,0) AS score_efficien
 FROM sat_scores
 
 --Underweight/Overweight Athletes
---Identify colleges with underweight and overweight athletes. Consider athletes with weight < 180 pounds as underweight and players with weight > 250 pounds as overweight. 
+--Identify colleges with underweight and overweight athletes. Consider athletes with weight < 180 pounds as underweight and 
+--players with weight > 250 pounds as overweight. 
 --Output the college along with the total number of overweight and underweight players. 
---If the college does not have any underweight/overweight players, leave the college out of the output. You can assume that each athlete's full name is unique on their college.
+--If the college does not have any underweight/overweight players, leave the college out of the output. 
+--You can assume that each athlete's full name is unique on their college.
 WITH a AS (SELECT college,COUNT(*) AS total_players FROM nfl_combine
 		WHERE weight<180 OR weight>250
 		GROUP BY college)
@@ -4233,10 +4380,6 @@ FROM a
 WHERE room_types!=''
 GROUP BY room_types
 
-
-
-
-
 --Count the number of accounts used for logins in 2016
 --How many accounts have performed a login in the year 2016?
 SELECT COUNT(1) AS total_logins
@@ -4244,7 +4387,8 @@ FROM product_logins
 WHERE login_date BETWEEN '2016-01-01' AND '2016-12-21' 
 
 --Drafted Into NFL
---How many athletes were drafted into NFL from 2013 NFL Combine? The pickround column specifies if the athlete was drafted into the NFL. A value of 0 means that the athlete was not drafted into the NFL.
+--How many athletes were drafted into NFL from 2013 NFL Combine? The pickround column specifies if the athlete was drafted into the NFL. 
+--A value of 0 means that the athlete was not drafted into the NFL.
 SELECT COUNT(*) AS athletes
 FROM nfl_combine
 WHERE pickround!=0
@@ -4257,7 +4401,8 @@ GROUP BY room_type
 
 --Growth of Airbnb
 --Estimate the growth of Airbnb each year using the number of hosts registered as the growth metric. 
---The rate of growth is calculated by taking ((number of hosts registered in the current year - number of hosts registered in the previous year) / the number of hosts registered in the previous year) * 100.
+--The rate of growth is calculated by taking ((number of hosts registered in the current year - number of hosts registered in the previous year) / the number 
+--of hosts registered in the previous year) * 100.
 --Output the year, number of hosts in the current year, number of hosts in the previous year, and the rate of growth. 
 --Round the rate of growth to the nearest percent and order the result in the ascending order based on the year.
 --Assume that the dataset consists only of unique hosts, meaning there are no duplicate hosts listed.
@@ -4299,14 +4444,16 @@ HAVING neighbourhood IS NOT NULL
 ORDER BY 2 DESC
 
 --Host Popularity Rental Prices
---You’re given a table of rental property searches by users. The table consists of search results and outputs host information for searchers. Find the minimum, average, maximum rental prices for each host’s popularity rating. 
+--You’re given a table of rental property searches by users. The table consists of search results and outputs host information for searchers. 
+--Find the minimum, average, maximum rental prices for each host’s popularity rating. 
 -- The host’s popularity rating is defined as below:
 --0 reviews: New
 --1 to 5 reviews: Rising
 --6 to 15 reviews: Trending Up
 --16 to 40 reviews: Popular
 --more than 40 reviews: Hot
---Tip: The id column in the table refers to the search ID. You'll need to create your own host_id by concating price, room_type, host_since, zipcode, and number_of_reviews.
+--Tip: The id column in the table refers to the search ID. You'll need to create your own host_id by concating price, room_type, host_since, zipcode, and 
+--number_of_reviews.
 --Output host popularity rating and their minimum, average and maximum rental prices.
 WITH a AS (SELECT CONCAT(CONCAT(CONCAT(CONCAT(CONVERT(DECIMAL(4,0),price),room_type),LEFT(host_since,4)),zipcode),number_of_reviews) AS host_id, 
 				CASE 
@@ -4383,7 +4530,8 @@ FROM airbnb_contacts
 WHERE ts_booking_at IS NOT NULL
 
 --Keywords From Yelp Reviews
---Find Yelp food reviews containing any of the keywords: 'food', 'pizza', 'sandwich', or 'burger'. List the business name, address, and the state which satisfies the requirement.
+--Find Yelp food reviews containing any of the keywords: 'food', 'pizza', 'sandwich', or 'burger'. List the business name, address, and the state 
+--which satisfies the requirement.
 WITH a AS (SELECT * FROM yelp_reviews a
 	WHERE (review_text LIKE '%food%' OR review_text LIKE '%pizza%' OR review_text LIKE '%sandwich%' OR review_text LIKE '%burger%'))
 SELECT business_name, address, review_text
@@ -4405,7 +4553,8 @@ SELECT student_id, sat_writing FROM sat_scores
 WHERE sat_writing = (SELECT DISTINCT(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY sat_writing) OVER()) FROM sat_scores)
 
 --Find Nexus5 control group users in Italy who don't speak Italian
---Find user id, language, and location of all Nexus 5 control group users in Italy who do not speak Italian. Sort the results in ascending order based on the occured_at value of the playbook_experiments dataset.
+--Find user id, language, and location of all Nexus 5 control group users in Italy who do not speak Italian. Sort the results in ascending order based on 
+--the occured_at value of the playbook_experiments dataset.
 SELECT * FROM playbook_experiments a
 JOIN playbook_users b
 ON a.user_id=b.user_id
@@ -4413,7 +4562,8 @@ WHERE device = 'nexus 5' AND location ='Italy' AND language!='italian'
 ORDER BY occurred_at
 
 --Exclusive Amazon Products
---Find products which are exclusive to only Amazon and therefore not sold at Top Shop and Macy's. Your output should include the product name, brand name, price, and rating.
+--Find products which are exclusive to only Amazon and therefore not sold at Top Shop and Macy's. Your output should include the product name, brand name, price, 
+--and rating.
 --Two products are considered equal if they have the same product name and same maximum retail price (mrp column).
 WITH a AS (SELECT product_name, mrp FROM innerwear_macys_com
 			UNION
@@ -4432,7 +4582,8 @@ JOIN a
 ON a.price=b.price AND a.product_category=b.product_category
 
 --Find the average rating of movie stars
---Find the average rating of each movie star along with their names and birthdays. Sort the result in the ascending order based on the birthday. Use the names as keys when joining the tables.
+--Find the average rating of each movie star along with their names and birthdays. Sort the result in the ascending order based on the birthday. 
+--Use the names as keys when joining the tables.
 WITH a AS (SELECT * FROM nominee_filmography
 		WHERE rating IS NOT NULL)
 SELECT a.name, AVG(rating) AS avg_rating, birthday
@@ -4442,7 +4593,8 @@ ON a.name=b.name
 GROUP BY a.name, birthday
 
 --Find fare differences on the Titanic using a self join
---Find the average absolute fare difference between a specific passenger and all passengers that belong to the same pclass,  both are non-survivors and age difference between two of them is 5 or less years. 
+--Find the average absolute fare difference between a specific passenger and all passengers that belong to the same pclass, both are non-survivors and age 
+--difference between two of them is 5 or less years. 
 --Do that for each passenger (that satisfy above mentioned coniditions). Output the result along with the passenger name.
 WITH a AS (SELECT name, pclass, age, fare FROM titanic
 		WHERE survived = 0 AND age IS NOT NULL)
@@ -4463,7 +4615,8 @@ FROM a
 GROUP BY pclass
 
 --Find The Best Day For Trading AAPL Stock
---Find the best day of the month for AAPL stock trading. The best day is the one with highest positive difference between average closing price and average opening price. 
+--Find the best day of the month for AAPL stock trading. The best day is the one with highest positive difference between average closing price and 
+--average opening price. 
 --Output the result along with the average opening and closing prices.
 SELECT DAY(date) AS day, AVG(close_price)- AVG(open_price) AS price_diff
 FROM aapl_historical_stock_price
@@ -4507,7 +4660,8 @@ GROUP BY video_id
 ORDER BY 2 DESC
 
 --User Streaks
---Provided a table with user id and the dates they visited the platform, find the top 3 users with the longest continuous streak of visiting the platform as of August 10, 2022. 
+--Provided a table with user id and the dates they visited the platform, find the top 3 users with the longest continuous streak of visiting the platform as 
+--of August 10, 2022. 
 --Output the user ID and the length of the streak.
 --In case of a tie, display all users with the top three longest streaks.
 WITH a AS (SELECT user_id, date_visited, DAY(date_visited) AS date
@@ -4534,7 +4688,8 @@ JOIN users_training b
 ON a.u_id=b.u_id
 
 --Book Sales
---Calculate the total revenue made per book. Output the book ID and total sales per book. In case there is a book that has never been sold, include it in your output with a value of 0.
+--Calculate the total revenue made per book. Output the book ID and total sales per book. In case there is a book that has never been sold, include it in 
+--your output with a value of 0.
 SELECT a.book_id, book_title, SUM(CONVERT(bigint,unit_price)*CONVERT(bigint,quantity)) AS revenue
 FROM amazon_books_order_details a
 JOIN amazon_books b
@@ -4548,7 +4703,8 @@ FROM noom_signups
 GROUP BY MONTH(started_at)
 
 --Process a Refund
---Calculate and display the minimum, average and the maximum number of days it takes to process a refund for accounts opened from January 1, 2019. Group by billing cycle in months.
+--Calculate and display the minimum, average and the maximum number of days it takes to process a refund for accounts opened from January 1, 2019. 
+--Group by billing cycle in months.
 --Note: The time frame for a refund to be fully processed is from settled_at until refunded_at.
 WITH a AS (SELECT DATEDIFF(day,settled_at,refunded_at) AS days
 		FROM noom_transactions a
@@ -4558,7 +4714,8 @@ SELECT MIN(days) AS minimum_days, AVG(days) AS average_days, MAX(days) AS maximu
 FROM a
 
 --Top Two Media Types
---What are the top two (ranked in decreasing order) single-channel media types that correspond to the most money the grocery chain had spent on its promotional campaigns?
+--What are the top two (ranked in decreasing order) single-channel media types that correspond to the most money the grocery chain had spent on 
+--its promotional campaigns?
 SELECT media_type, SUM(cost) AS total_cost
 FROM facebook_sales_promotions
 GROUP BY media_type
